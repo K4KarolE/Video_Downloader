@@ -5,15 +5,20 @@ ffmpeg
 - https://windowsloop.com/install-ffmpeg-windows-10/#add-ffmpeg-to-Windows-path
 '''
 # test link: https://youtu.be/7AwWEU5nsBA
+# thumbnail: https://img.youtube.com/vi/7AwWEU5nsBA/maxresdefault.jpg
  
 import sys
 import os
 import webbrowser
 import pyperclip
+import urllib.request
+
+
 
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
 import tkinter.messagebox           # for pop-up windows
+from PIL import Image,ImageTk       # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
 
 from functions import settings
 settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
@@ -62,7 +67,8 @@ av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_opt
 av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
 av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
 
-# GET THE LINK BUTTON
+## GET THE LINK - BUTTON
+# GET URL
 def get_url():
     link = pyperclip.paste()
     # counter = 0
@@ -75,8 +81,48 @@ def get_url():
     settings_data['yt_url'] = link
     settings.save_settings(settings_data)
     print(link)
-    
-button_get_url = Button(window, text = "Get the URL", command = get_url, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
+
+# SAVE AVAILABLE FORMATS > FORMATS.TXT
+def save_available_formats():
+    link = settings_data['yt_url']
+    parameter = '-F'
+    executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+    os.system(executable)
+    print('\n')
+
+# SAVE VIDEO ID AND THUMBNAIL
+def save_id_and_thumbnail():
+    settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
+
+    file = open(r'.\formats.txt','r+')
+    listFile = list(file)
+    listSecond = listFile[1].split()        # ['[youtube]', '7yaMASnzoN8:', 'Downloading', 'webpage']
+    yt_video_ID = listSecond[1].strip(':')
+    settings_data['yt_video_ID'] = yt_video_ID
+    settings.save_settings(settings_data)
+
+    #SAVE THUMBNAIL
+    imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/maxresdefault.jpg"
+    urllib.request.urlretrieve(imgURL, "./thumbnail/thumbnail.jpg")
+
+# DISPLAY THUMBNAIL
+def display_thumbnail():
+    global img  # Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
+    my_img = Image.open(r".\thumbnail\thumbnail.jpg")
+    n = 4
+    width = int(1280 / n)
+    height = int(720 / n)
+    resized_image = my_img.resize((width, height))
+    img = ImageTk.PhotoImage(resized_image)
+    Label(window, image=img).place(x=8, y=300)
+
+  
+button_get_url = Button(window, text = "Get the URL", command = lambda: [
+    get_url(),
+    save_available_formats(),
+    save_id_and_thumbnail(),
+    display_thumbnail()
+ ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
 # no () in command = your_function() otherwise will execute it automatically before clicking the button
 # binding multiple commands to the same button: command = lambda: [save_settings(), engine.start_engine()]
 
@@ -115,7 +161,7 @@ button_start = Button(window, text = "START", command = start, foreground=font_c
 def display_widgets():
     # BASE VALUES
     # X
-    x = 150
+    x = 350
     x_button_gap = 170
     x_gap_for_path_objects = 5
     # Y
@@ -128,13 +174,11 @@ def display_widgets():
         return display_y
 
 
-    # AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
-    av_options_roll_down.place(x=x, y=y_location(1))
-
     # GET URL - BUTTON
-    button_get_url.place(x=x, y=y_location(2.5))
+    button_get_url.place(x=x, y=y_location(1))
 
-
+    # AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
+    av_options_roll_down.place(x=x, y=y_location(2.5))
 
 
 
@@ -147,12 +191,12 @@ display_widgets()
 window.mainloop()
 
 
-# # LIST AVAILABLE FORMATS
-# def available_formats():
-#     parameter = '-F'
-#     executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
-#     os.system(executable)
-#     print('\n')
+# SAVE AVAILABLE FORMATS
+def available_formats(link):
+    parameter = '-F'
+    executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+    os.system(executable)
+    print('\n')
 
 # # UPDATE YT-DLP
 # def update_yt_dlp():

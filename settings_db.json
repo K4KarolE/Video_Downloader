@@ -1,10 +1,11 @@
 {
+  "yt_video_ID": "_sAguCr1Ku8",
   "yt_dlp_path": "",
   "selected_video_resolution": "",
   "selected_audio_quality": "",
   "target_location_path": "",
-  "av_selected": "Audio Only",
-  "yt_url": "",
+  "av_selected": "480p",
+  "yt_url": "https://youtu.be/CoNI7ToYlxE",
   "background_color": "grey",
   "field_background_color": "grey",
   "font_style": "Georgia",
