@@ -1,1 +1,5 @@
-test*.py
+test*
+
+formats*
+
+__pycache__

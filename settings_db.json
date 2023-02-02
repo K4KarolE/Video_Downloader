@@ -1,7 +1,13 @@
 {
-    "yt_dlp_path": "",
-    "just_audio": 0,
-    "selected_video_resolution": "",
-    "selected_audio_quality": "",
-    "target_location_path": ""
-  }
+  "yt_dlp_path": "",
+  "selected_video_resolution": "",
+  "selected_audio_quality": "",
+  "target_location_path": "",
+  "av_selected": "Audio Only",
+  "yt_url": "",
+  "background_color": "grey",
+  "field_background_color": "grey",
+  "font_style": "Georgia",
+  "font_color": "black",
+  "window_title": "YouTube Downloader"
+}
