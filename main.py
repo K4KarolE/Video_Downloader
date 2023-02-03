@@ -80,30 +80,49 @@ def get_url():
     #         sys.exit()
     settings_data['yt_url'] = link
     settings.save_settings(settings_data)
-    print(link)
 
-# SAVE AVAILABLE FORMATS > FORMATS.TXT
-def save_available_formats():
+# # SAVE AVAILABLE FORMATS > FORMATS.TXT
+# def save_available_formats():
+#     link = settings_data['yt_url']
+#     parameter = '-F'
+#     executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+#     os.system(executable)
+#     print('\n')
+
+# # GET INFORMATION > INFO.TXT
+def save_info():
     link = settings_data['yt_url']
-    parameter = '-F'
-    executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+    parameter = '--get-id --get-filename --get-duration'
+    executable =  f'{yt_dlp_path} {parameter} {link} > info.txt'     # writes the available formats into the txt file
     os.system(executable)
     print('\n')
 
-# SAVE VIDEO ID AND THUMBNAIL
-def save_id_and_thumbnail():
-    settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
-
-    file = open(r'.\formats.txt','r+')
+# SAVE BASIC VIDEO INFORMATION
+def extract_info():
+    file = open(r'.\info.txt','r+')
     listFile = list(file)
-    listSecond = listFile[1].split()        # ['[youtube]', '7yaMASnzoN8:', 'Downloading', 'webpage']
-    yt_video_ID = listSecond[1].strip(':')
+    yt_video_ID = listFile[0].strip('\n')
+    yt_video_title = listFile[1].strip(f'[{yt_video_ID}].webm\n')
+    yt_video_duration = listFile[2].strip('\n')
+    if ':' not in yt_video_duration:
+        yt_video_duration = yt_video_duration + 's'
     settings_data['yt_video_ID'] = yt_video_ID
+    settings_data['yt_video_title'] = yt_video_title
+    settings_data['yt_video_duration'] = yt_video_duration
     settings.save_settings(settings_data)
 
-    #SAVE THUMBNAIL
-    imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/maxresdefault.jpg"
-    urllib.request.urlretrieve(imgURL, "./thumbnail/thumbnail.jpg")
+# SAVE THUMBNAIL
+def save_thumbnail():
+    yt_video_ID = settings_data['yt_video_ID']
+    thumbnail_found = False
+    while thumbnail_found == False:
+        for res in ['maxres', 'hqres', 'hq', 'mq', 'sd', '']:   # find the highest resolution available
+            try:
+                imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/{res}default.jpg"
+                urllib.request.urlretrieve(imgURL, "./thumbnail/thumbnail.jpg")
+                thumbnail_found = True
+            except:
+                pass
 
 # DISPLAY THUMBNAIL
 def display_thumbnail():
@@ -119,8 +138,9 @@ def display_thumbnail():
   
 button_get_url = Button(window, text = "Get the URL", command = lambda: [
     get_url(),
-    save_available_formats(),
-    save_id_and_thumbnail(),
+    save_info(),
+    extract_info(),
+    save_thumbnail(),
     display_thumbnail()
  ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
 # no () in command = your_function() otherwise will execute it automatically before clicking the button
