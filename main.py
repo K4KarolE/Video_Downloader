@@ -102,7 +102,7 @@ def extract_info():
     file = open(r'.\info.txt','r+')
     listFile = list(file)
     yt_video_ID = listFile[0].strip('\n')
-    yt_video_title = listFile[1].strip(f'[{yt_video_ID}].webm\n')
+    yt_video_title = listFile[1].rstrip(f'[{yt_video_ID}].webm\n')
     yt_video_duration = listFile[2].strip('\n')
     if ':' not in yt_video_duration:
         yt_video_duration = yt_video_duration + 's'
@@ -115,33 +115,51 @@ def extract_info():
 def save_thumbnail():
     yt_video_ID = settings_data['yt_video_ID']
     thumbnail_found = False
-    while thumbnail_found == False:
-        for res in ['maxres', 'hqres', 'hq', 'mq', 'sd', '']:   # find the highest resolution available
+    i = 0
+    res = ['maxres', 'hqres', 'hq', 'mq', 'sd', '']
+    while thumbnail_found == False and i < 6:
             try:
-                imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/{res}default.jpg"
+                imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/{res[i]}default.jpg"
                 urllib.request.urlretrieve(imgURL, "./thumbnail/thumbnail.jpg")
                 thumbnail_found = True
             except:
-                pass
+                i += 1
 
 # DISPLAY THUMBNAIL
 def display_thumbnail():
-    global img  # Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
+    global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
     my_img = Image.open(r".\thumbnail\thumbnail.jpg")
     n = 4
     width = int(1280 / n)
     height = int(720 / n)
     resized_image = my_img.resize((width, height))
     img = ImageTk.PhotoImage(resized_image)
-    Label(window, image=img).place(x=8, y=300)
+    Label(window, image=img).place(x=8, y=200)
 
-  
+# DISPLAY INFO - TITLE - DURATION
+info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
+info_text_widget.config(font =(font_style, 10))
+info_text_widget.place(x=8, y=150)
+def display_info():
+    n = 47
+    duration_length = len(settings_data['yt_video_duration'])
+    title_length = len(settings_data['yt_video_title'])
+    if title_length + duration_length + 7 >= n:
+        cut = n - duration_length - 7
+        title = settings_data['yt_video_title'][:cut] + '..'
+    else:
+        title = settings_data['yt_video_title']
+    info_text = f"{title}  -  {settings_data['yt_video_duration']}"
+    info_text_widget.config(text = "")      # remove previous info
+    info_text_widget.config(text = info_text)
+
 button_get_url = Button(window, text = "Get the URL", command = lambda: [
     get_url(),
     save_info(),
     extract_info(),
     save_thumbnail(),
-    display_thumbnail()
+    display_thumbnail(),
+    display_info()
  ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
 # no () in command = your_function() otherwise will execute it automatically before clicking the button
 # binding multiple commands to the same button: command = lambda: [save_settings(), engine.start_engine()]
