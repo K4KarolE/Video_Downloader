@@ -103,6 +103,13 @@ def extract_info():
 
 # SAVE THUMBNAIL
 def save_thumbnail():
+     # FFMPEG PATH      -  settings_data['path_ffmpeg'] = "--ffmpeg-location PATH"   
+    # if settings_data['path_ffmpeg'] != "":          # if ffmpeg not added to the windows path - ffmpeg path browse field is used
+    #     path_ffmpeg = settings_data['path_ffmpeg']
+    #     add_path_ffmpeg = f'--ffmpeg-location {path_ffmpeg}'
+    # else:
+    #     add_path_ffmpeg = None
+
     link = settings_data['video_url']
     path = 'thumbnail'
     parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
@@ -160,12 +167,12 @@ button_get_url = Button(window, text = "Get the URL", command = lambda: [
 
 # START - BUTTON
 def start():
+    # AUDIO-VIDEO SELECTION CHECK
     if av_options_roll_down_clicked.get() not in av_options_list: 
         print('Select the Audio/Video option')
         return
 
     settings_data['av_selected'] = av_options_roll_down_clicked.get()
-
 
     settings.save_settings(settings_data)
     av_selected = av_options_roll_down_clicked.get()

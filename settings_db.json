@@ -4,6 +4,7 @@
   "video_duration": "7:08",
   "video_url": "https://youtu.be/2OTq15A5s0Y",
   "path_yt_dlp": "D:/Applications/YouTube-DLP/yt-dlp.exe",
+  "path_ffmpeg": "",
   "path_target_location": "D:/Downloads/",
   "av_selected": "360p",
   "background_color": "grey",
