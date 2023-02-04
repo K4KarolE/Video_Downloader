@@ -11,6 +11,7 @@ import os
 import webbrowser
 import pyperclip
 
+from pathlib import Path
 
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
@@ -38,7 +39,7 @@ window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])  # - FYI
 
 
-yt_dlp_path = 'd:\Applications\YouTube-DLP\yt-dlp.exe'      # will come from UI - browse window
+path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
 
 
 
@@ -74,20 +75,21 @@ def get_url():
 # def save_available_formats():
 #     link = settings_data['video_url']
 #     parameter = '--print formats_table'
-#     executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
 #     os.system(executable)
 #     print('\n')
 
 # # GET INFORMATION > INFO.TXT
 def save_info():
     link = settings_data['video_url']
-    parameter = '--get-id --get-title --get-duration --restrict-filenames'
-    executable =  f'{yt_dlp_path} {parameter} {link} > info.txt'     # writes the available formats into the txt file
+    info_path = './temp/info.txt'
+    parameter = f'--get-id --get-title --get-duration --restrict-filenames '
+    executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
     os.system(executable)
 
 # SAVE BASIC VIDEO INFORMATION
 def extract_info():
-    file = open(r'.\info.txt','r+')
+    file = open('./temp/info.txt','r+')
     listFile = list(file)
     video_ID = listFile[1].strip('\n')
     video_title = listFile[0].strip('\n')      
@@ -104,7 +106,7 @@ def save_thumbnail():
     link = settings_data['video_url']
     path = 'thumbnail'
     parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
-    executable =  f'{yt_dlp_path} {parameter} {link}'     # writes the available formats into the txt file
+    executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
     os.system(executable)
     
 # DISPLAY THUMBNAIL
@@ -112,7 +114,7 @@ def display_thumbnail():
     try:
         global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
         file_name = "thumbnail.png"
-        my_img = Image.open(f".\\thumbnail\{file_name}")
+        my_img = Image.open(f"./thumbnail/{file_name}")
         n = 4
         width = int(1280 / n)
         height = int(720 / n)
@@ -169,13 +171,14 @@ def start():
     av_selected = av_options_roll_down_clicked.get()
     link = settings_data['video_url']
     selected_resolution = av_options[av_selected]       #av_options['720p']
-
+    
+    path = settings_data['path_target_location']
     if selected_resolution.isdecimal():                 # 360 - 2160
-        parameter = f'-S "res:{selected_resolution}"'   # Download the best video available with the largest resolution but no better than {selected_resolution},
+        parameter = f'-S "res:{selected_resolution}" --paths {path}'   # Download the best video available with the largest resolution but no better than {selected_resolution},
     else:                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = '-x --audio-format mp3'             # Audio Only
+        parameter = f'-x --audio-format mp3 --paths {path}'             # Audio Only
 
-    executable =  f'{yt_dlp_path} {parameter} {link}'
+    executable =  f'{path_yt_dlp} {parameter} {link}'
     os.system(executable)
 
 button_start = Button(window, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
@@ -219,14 +222,14 @@ window.mainloop()
 # SAVE AVAILABLE FORMATS
 def available_formats(link):
     parameter = '-F'
-    executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+    executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
     os.system(executable)
     print('\n')
 
 # # UPDATE YT-DLP
 # def update_yt_dlp():
 #     parameter = '-U'
-#     executable =  f'{yt_dlp_path} {parameter}'
+#     executable =  f'{path_yt_dlp} {parameter}'
 #     os.system(executable)
 
 # # OPEN YT-DLP GITHUB SITE
