@@ -5,14 +5,11 @@ ffmpeg
 - https://windowsloop.com/install-ffmpeg-windows-10/#add-ffmpeg-to-Windows-path
 '''
 # test link: https://youtu.be/7AwWEU5nsBA
-# thumbnail: https://img.youtube.com/vi/7AwWEU5nsBA/maxresdefault.jpg
  
 import sys
 import os
 import webbrowser
 import pyperclip
-import urllib.request
-
 
 
 from tkinter import *
@@ -38,7 +35,7 @@ width = 500
 length = 600
 window.geometry(f'{width}x{length}')
 window.resizable(0,0)   # locks the main window
-window.configure(background="grey")  # - FYI
+window.configure(background=settings_data['background_color'])  # - FYI
 
 
 yt_dlp_path = 'd:\Applications\YouTube-DLP\yt-dlp.exe'      # will come from UI - browse window
@@ -70,20 +67,12 @@ av_options_roll_down['menu'].configure(foreground=font_color, background=backgro
 ## GET THE LINK - BUTTON
 # GET URL
 def get_url():
-    link = pyperclip.paste()
-    # counter = 0
-    # while 'youtu' not in link:
-    #     counter += 1
-    #     # messages.error_pop_up('wrong_link')
-    #     link = pyperclip.paste()
-    #     if counter == 3:
-    #         sys.exit()
-    settings_data['yt_url'] = link
+    settings_data['video_url'] = pyperclip.paste()
     settings.save_settings(settings_data)
 
 # # SAVE AVAILABLE FORMATS > FORMATS.TXT
 # def save_available_formats():
-#     link = settings_data['yt_url']
+#     link = settings_data['video_url']
 #     parameter = '--print formats_table'
 #     executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
 #     os.system(executable)
@@ -91,50 +80,48 @@ def get_url():
 
 # # GET INFORMATION > INFO.TXT
 def save_info():
-    link = settings_data['yt_url']
-    parameter = '--get-id --get-filename --get-duration'
+    link = settings_data['video_url']
+    parameter = '--get-id --get-title --get-duration --restrict-filenames'
     executable =  f'{yt_dlp_path} {parameter} {link} > info.txt'     # writes the available formats into the txt file
     os.system(executable)
-    print('\n')
 
 # SAVE BASIC VIDEO INFORMATION
 def extract_info():
     file = open(r'.\info.txt','r+')
     listFile = list(file)
-    yt_video_ID = listFile[0].strip('\n')
-    yt_video_title = listFile[1].rstrip(f'[{yt_video_ID}].webm\n')
-    yt_video_duration = listFile[2].strip('\n')
-    if ':' not in yt_video_duration:
-        yt_video_duration = yt_video_duration + 's'
-    settings_data['yt_video_ID'] = yt_video_ID
-    settings_data['yt_video_title'] = yt_video_title
-    settings_data['yt_video_duration'] = yt_video_duration
+    video_ID = listFile[1].strip('\n')
+    video_title = listFile[0].strip('\n')      
+    video_duration = listFile[2].strip('\n')
+    if ':' not in video_duration:
+        video_duration = video_duration + 's'
+    settings_data['video_ID'] = video_ID
+    settings_data['video_title'] = video_title
+    settings_data['video_duration'] = video_duration
     settings.save_settings(settings_data)
 
 # SAVE THUMBNAIL
 def save_thumbnail():
-    yt_video_ID = settings_data['yt_video_ID']
-    thumbnail_found = False
-    i = 0
-    res = ['maxres', 'hqres', 'hq', 'mq', 'sd', '']
-    while thumbnail_found == False and i < 6:
-            try:
-                imgURL = f"https://img.youtube.com/vi/{yt_video_ID}/{res[i]}default.jpg"
-                urllib.request.urlretrieve(imgURL, "./thumbnail/thumbnail.jpg")
-                thumbnail_found = True
-            except:
-                i += 1
-
+    link = settings_data['video_url']
+    path = 'thumbnail'
+    parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
+    executable =  f'{yt_dlp_path} {parameter} {link}'     # writes the available formats into the txt file
+    os.system(executable)
+    
 # DISPLAY THUMBNAIL
 def display_thumbnail():
-    global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
-    my_img = Image.open(r".\thumbnail\thumbnail.jpg")
-    n = 4
-    width = int(1280 / n)
-    height = int(720 / n)
-    resized_image = my_img.resize((width, height))
-    img = ImageTk.PhotoImage(resized_image)
-    Label(window, image=img).place(x=8, y=200)
+    try:
+        global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
+        file_name = "thumbnail.png"
+        my_img = Image.open(f".\\thumbnail\{file_name}")
+        n = 4
+        width = int(1280 / n)
+        height = int(720 / n)
+        resized_image = my_img.resize((width, height))
+        img = ImageTk.PhotoImage(resized_image)
+        Label(window, image=img).place(x=8, y=200)
+    except:
+        print("ERROR - Thumbnail")
+        print()
 
 # DISPLAY INFO - TITLE - DURATION
 info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
@@ -142,14 +129,14 @@ info_text_widget.config(font =(font_style, 10))
 info_text_widget.place(x=8, y=150)
 def display_info():
     n = 47
-    duration_length = len(settings_data['yt_video_duration'])
-    title_length = len(settings_data['yt_video_title'])
+    duration_length = len(settings_data['video_duration'])
+    title_length = len(settings_data['video_title'])
     if title_length + duration_length + 7 >= n:
         cut = n - duration_length - 7
-        title = settings_data['yt_video_title'][:cut] + '..'
+        title = settings_data['video_title'][:cut] + '..'
     else:
-        title = settings_data['yt_video_title']
-    info_text = f"{title}  -  {settings_data['yt_video_duration']}"
+        title = settings_data['video_title']
+    info_text = f"{title}  -  {settings_data['video_duration']}"
     info_text_widget.config(text = "")      # remove previous info
     info_text_widget.config(text = info_text)
 
@@ -180,7 +167,7 @@ def start():
 
     settings.save_settings(settings_data)
     av_selected = av_options_roll_down_clicked.get()
-    link = settings_data['yt_url']
+    link = settings_data['video_url']
     selected_resolution = av_options[av_selected]       #av_options['720p']
 
     if selected_resolution.isdecimal():                 # 360 - 2160
