@@ -84,7 +84,7 @@ def get_url():
 # # SAVE AVAILABLE FORMATS > FORMATS.TXT
 # def save_available_formats():
 #     link = settings_data['yt_url']
-#     parameter = '-F'
+#     parameter = '--print formats_table'
 #     executable =  f'{yt_dlp_path} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
 #     os.system(executable)
 #     print('\n')
@@ -186,7 +186,7 @@ def start():
     if selected_resolution.isdecimal():                 # 360 - 2160
         parameter = f'-S "res:{selected_resolution}"'   # Download the best video available with the largest resolution but no better than {selected_resolution},
     else:                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = '-f bestaudio'                      # Audio Only
+        parameter = '-x --audio-format mp3'             # Audio Only
 
     executable =  f'{yt_dlp_path} {parameter} {link}'
     os.system(executable)
