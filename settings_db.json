@@ -1,16 +1,16 @@
 {
-  "video_ID": "9Ib3Jh62Cr8",
-  "video_title": "The sound of hope | The Shawshank Redemption",
-  "video_duration": "42s",
-  "video_url": "https://youtu.be/9Ib3Jh62Cr8",
+  "video_ID": "2OTq15A5s0Y",
+  "video_title": "7 better ways to create a React app",
+  "video_duration": "7:08",
+  "video_url": "https://youtu.be/2OTq15A5s0Y",
   "yt_dlp_path": "",
   "selected_video_resolution": "",
   "selected_audio_quality": "",
   "target_location_path": "",
-  "av_selected": "480p",
+  "av_selected": "1080p",
   "background_color": "grey",
   "field_background_color": "grey",
   "font_style": "Georgia",
   "font_color": "black",
-  "window_title": "YouTube Downloader"
+  "window_title": "Video Downloader"
 }
