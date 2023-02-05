@@ -66,6 +66,17 @@ av_options_roll_down.configure(foreground=font_color, background=background_colo
 av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
 
 ## GET THE LINK - BUTTON
+# REMOVE PREVIOUS VALUES - THUMBNAIL
+def remove_pre_info():
+    try:
+        settings_data['video_ID'] = ""
+        settings_data['video_title'] = ""
+        settings_data['video_duration'] = ""
+        settings.save_settings(settings_data)
+        os.remove('./thumbnail/thumbnail.png')
+    except:
+        pass
+
 # GET URL
 def get_url():
     settings_data['video_url'] = pyperclip.paste()
@@ -89,17 +100,20 @@ def save_info():
 
 # SAVE BASIC VIDEO INFORMATION
 def extract_info():
-    file = open('./temp/info.txt','r+')
-    listFile = list(file)
-    video_ID = listFile[1].strip('\n')
-    video_title = listFile[0].strip('\n')      
-    video_duration = listFile[2].strip('\n')
-    if ':' not in video_duration:
-        video_duration = video_duration + 's'
-    settings_data['video_ID'] = video_ID
-    settings_data['video_title'] = video_title
-    settings_data['video_duration'] = video_duration
-    settings.save_settings(settings_data)
+    try:
+        file = open('./temp/info.txt','r+')
+        listFile = list(file)
+        video_ID = listFile[1].strip('\n')
+        video_title = listFile[0].strip('\n')      
+        video_duration = listFile[2].strip('\n')
+        if ':' not in video_duration:
+            video_duration = video_duration + 's'
+        settings_data['video_ID'] = video_ID
+        settings_data['video_title'] = video_title
+        settings_data['video_duration'] = video_duration
+        settings.save_settings(settings_data)
+    except:
+        print('ERROR - WRONG LINK')
 
 # SAVE THUMBNAIL
 def save_thumbnail():
@@ -109,47 +123,54 @@ def save_thumbnail():
     #     add_path_ffmpeg = f'--ffmpeg-location {path_ffmpeg}'
     # else:
     #     add_path_ffmpeg = None
-
-    link = settings_data['video_url']
-    path = 'thumbnail'
-    parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
-    executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
-    os.system(executable)
+    if settings_data['video_title'] != "":
+        link = settings_data['video_url']
+        path = 'thumbnail'
+        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
+        executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
+        os.system(executable)
     
 # DISPLAY THUMBNAIL
 def display_thumbnail():
     try:
-        global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
-        file_name = "thumbnail.png"
+        if settings_data['video_title'] != "":
+            file_name = "thumbnail.png"
+        else:
+            file_name = "thumbnail_error.png"
         my_img = Image.open(f"./thumbnail/{file_name}")
         n = 4
         width = int(1280 / n)
         height = int(720 / n)
         resized_image = my_img.resize((width, height))
+        global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
         img = ImageTk.PhotoImage(resized_image)
         Label(window, image=img).place(x=8, y=200)
     except:
         print("ERROR - Thumbnail")
-        print()
+
 
 # DISPLAY INFO - TITLE - DURATION
 info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
 info_text_widget.config(font =(font_style, 10))
 info_text_widget.place(x=8, y=150)
 def display_info():
-    n = 47
-    duration_length = len(settings_data['video_duration'])
-    title_length = len(settings_data['video_title'])
-    if title_length + duration_length + 7 >= n:
-        cut = n - duration_length - 7
-        title = settings_data['video_title'][:cut] + '..'
+    if settings_data['video_title'] != "":
+        n = 47
+        duration_length = len(settings_data['video_duration'])
+        title_length = len(settings_data['video_title'])                 
+        if title_length + duration_length + 7 >= n:
+            cut = n - duration_length - 7
+            title = settings_data['video_title'][:cut] + '..'
+        else:
+            title = settings_data['video_title']
+        info_text = f"{title}  -  {settings_data['video_duration']}"
+        info_text_widget.config(text = "")      # remove previous info
+        info_text_widget.config(text = info_text)
     else:
-        title = settings_data['video_title']
-    info_text = f"{title}  -  {settings_data['video_duration']}"
-    info_text_widget.config(text = "")      # remove previous info
-    info_text_widget.config(text = info_text)
+        info_text_widget.config(text = "- ERROR -")              # remove previous info if the title is not extracted
 
 button_get_url = Button(window, text = "Get the URL", command = lambda: [
+    remove_pre_info(),
     get_url(),
     save_info(),
     extract_info(),

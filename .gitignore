@@ -4,7 +4,7 @@ formats*
 
 __pycache__
 
-thumbnail*
+thumbnail.png
 
 info*
 .gitignore
