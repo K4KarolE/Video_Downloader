@@ -33,11 +33,17 @@ font_color = settings_data['font_color']
 window = Tk()
 window.title(settings_data['window_title'])
 width = 500
-length = 600
+length = 400
 window.geometry(f'{width}x{length}')
 window.resizable(0,0)   # locks the main window
-window.configure(background=settings_data['background_color'])  # - FYI
-
+window.configure(background=settings_data['background_color'])
+# ICON
+window.iconbitmap('./skin/icon.ico')
+# RECTANGLES 
+canvas = Canvas(window, width=width, height=length, background = background_color)
+canvas.create_rectangle(10, 150, 340, 390, outline="#CBD2CF",fill="white")
+canvas.create_rectangle(15, 160, 330, 190, outline="#CBD2CF",fill="white")        #(x0, y0, x1, y1)
+canvas.pack()
 
 path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
 
@@ -60,7 +66,7 @@ for item in av_options.keys():
     av_options_list += [item]       # Audio Only - 2160p
 
 av_options_roll_down_clicked = StringVar()
-av_options_roll_down_clicked.set("Audio / Video")    
+av_options_roll_down_clicked.set("Save as")    
 av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_options_list, command=None)     
 av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
 av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
@@ -144,7 +150,7 @@ def display_thumbnail():
         resized_image = my_img.resize((width, height))
         global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
         img = ImageTk.PhotoImage(resized_image)
-        Label(window, image=img).place(x=8, y=200)
+        Label(window, image=img).place(x=15, y=200)
     except:
         print("ERROR - Thumbnail")
 
@@ -152,7 +158,7 @@ def display_thumbnail():
 # DISPLAY INFO - TITLE - DURATION
 info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
 info_text_widget.config(font =(font_style, 10))
-info_text_widget.place(x=8, y=150)
+info_text_widget.place(x=20, y=170)
 def display_info():
     if settings_data['video_title'] != "":
         n = 47
@@ -167,9 +173,9 @@ def display_info():
         info_text_widget.config(text = "")      # remove previous info
         info_text_widget.config(text = info_text)
     else:
-        info_text_widget.config(text = "- ERROR -")              # remove previous info if the title is not extracted
+        info_text_widget.config(text = "- Sorry, something went wrong -")              # remove previous info if the title is not extracted
 
-button_get_url = Button(window, text = "Get the URL", command = lambda: [
+button_get_url = Button(window, text = "Get URL", command = lambda: [
     remove_pre_info(),
     get_url(),
     save_info(),
