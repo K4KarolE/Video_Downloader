@@ -39,10 +39,14 @@ window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])
 # ICON
 window.iconbitmap('./skin/icon.ico')
-# RECTANGLES 
+# RECTANGLES
+canvas_color = settings_data['background_color']
+canvas_frame_color = settings_data['canvas_frame_color']
 canvas = Canvas(window, width=width, height=length, background = background_color)
-canvas.create_rectangle(10, 150, 340, 390, outline="#CBD2CF",fill="white")
-canvas.create_rectangle(15, 160, 330, 190, outline="#CBD2CF",fill="white")        #(x0, y0, x1, y1)
+canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
+canvas.create_rectangle(10, 150, 340, 390, outline=canvas_frame_color, fill=canvas_color)          # INFO
+canvas.create_rectangle(10, 150, 340, 190, outline=canvas_frame_color, fill=canvas_color)          # THUMBNAIL
+canvas.create_rectangle(340, 150, 490, 390, outline=canvas_frame_color, fill=canvas_color)         # BUTTONS
 canvas.pack()
 
 path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
@@ -100,7 +104,7 @@ def get_url():
 def save_info():
     link = settings_data['video_url']
     info_path = './temp/info.txt'
-    parameter = f'--get-id --get-title --get-duration --restrict-filenames '
+    parameter = f'--get-id --get-title --get-duration --restrict-filenames --quiet'
     executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
     os.system(executable)
 
@@ -132,11 +136,16 @@ def save_thumbnail():
     if settings_data['video_title'] != "":
         link = settings_data['video_url']
         path = 'thumbnail'
-        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path}' % {'NAME': "thumbnail"}
+        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path} --quiet' % {'NAME': "thumbnail"}
         executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
         os.system(executable)
     
 # DISPLAY THUMBNAIL
+my_img = Image.open(f"./thumbnail/thumbnail_default.png")
+global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
+img = ImageTk.PhotoImage(my_img)
+Label(window, image=img, background=canvas_color).place(x=15, y=200)
+
 def display_thumbnail():
     try:
         if settings_data['video_title'] != "":
@@ -150,7 +159,7 @@ def display_thumbnail():
         resized_image = my_img.resize((width, height))
         global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
         img = ImageTk.PhotoImage(resized_image)
-        Label(window, image=img).place(x=15, y=200)
+        Label(window, image=img, background=canvas_color).place(x=15, y=200)
     except:
         print("ERROR - Thumbnail")
 
@@ -158,7 +167,7 @@ def display_thumbnail():
 # DISPLAY INFO - TITLE - DURATION
 info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
 info_text_widget.config(font =(font_style, 10))
-info_text_widget.place(x=20, y=170)
+info_text_widget.place(x=20, y=160)
 def display_info():
     if settings_data['video_title'] != "":
         n = 47
@@ -208,9 +217,9 @@ def start():
     
     path = settings_data['path_target_location']
     if selected_resolution.isdecimal():                 # 360 - 2160
-        parameter = f'-S "res:{selected_resolution}" --paths {path}'   # Download the best video available with the largest resolution but no better than {selected_resolution},
+        parameter = f'-S "res:{selected_resolution}" --paths {path} -q --progress'   # Download the best video available with the largest resolution but no better than {selected_resolution},
     else:                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = f'-x --audio-format mp3 --paths {path}'             # Audio Only
+        parameter = f'-x --audio-format mp3 --paths {path} -q --progress'             # Audio Only
 
     executable =  f'{path_yt_dlp} {parameter} {link}'
     os.system(executable)
@@ -245,7 +254,7 @@ def display_widgets():
 
 
     # START - BUTTON
-    button_start.place(x=x, y=y_location(8))
+    button_start.place(x=x, y=y_location(7))
 
 
 display_widgets()
