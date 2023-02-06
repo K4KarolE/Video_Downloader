@@ -54,14 +54,10 @@ path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse win
 
 
 ### WIDGETS
-## VIDEO TITLE - FIELD
-title_field_length = 47
+## VIDEO TITLE AND DURATION - FIELD
+title_field_length = 58
 video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
 video_title_field.place(x=15, y=170)
-
-## VIDEO DURATION - FIELD
-video_duration_field = Text(window, height = 1, width = 10, foreground=font_color, background="white")
-video_duration_field.place(x=400, y=170)
 
 
 ## GET URL - BUTTON
@@ -153,33 +149,24 @@ def display_info():
         field.tag_add("tag_name", "1.0", "end")
 
     if settings_data['video_title'] != "":
-        n = title_field_length
-    
         title_length = len(settings_data['video_title'])
-                       
-        if title_length >= n:
-            cut = n - 3
-            title = settings_data['video_title'][:cut] + '..'
+        duration_length = len(settings_data['video_duration'])
+
+        if title_length + duration_length + 7 >= 56:
+            cut = 56 - duration_length - 7
+            title = settings_data['video_title'][:cut] + '..  -  ' + settings_data['video_duration']
         else:
-            title = settings_data['video_title']
+            title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
        
-        #TITLE
         video_title_field.delete('1.0', END)       # once a button is clicked, removes the previous value
         video_title_field.insert(END, title)       # adding the path and the name of the selected file
         text_position(video_title_field)
-        #DURATION
-        video_duration_field.delete('1.0', END)       # once a button is clicked, removes the previous value
-        video_duration_field.insert(END, settings_data['video_duration'])
-        text_position(video_duration_field)    
+       
     else:
-        #TITLE
         video_title_field.delete('1.0', END)      
-        video_title_field.insert(END, "Sorry, something went wrong")
+        video_title_field.insert(END, "- - Sorry, something went wrong - -")
         text_position(video_title_field)
-        #DURATION
-        video_duration_field.delete('1.0', END)       # once a button is clicked, removes the previous value
-        video_duration_field.insert(END, "###")
-        text_position(video_duration_field)
+
 
 button_get_url = Button(window, text = "Get URL", command = lambda: [
     remove_pre_info(),
