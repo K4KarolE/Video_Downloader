@@ -1,8 +1,7 @@
 # Video Downloader - In Progress
 - Takes the video link from clipboard
     - Displaying the thumbnail, video title and duration
-- Video / just audio selectable
-- Video resolution selectable
+- Video resolution / just audio selectable
 - Able to add via browse window or field:
     - Target location
     - [YT-DLP](https://github.com/yt-dlp/yt-dlp) location

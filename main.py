@@ -15,11 +15,13 @@ from pathlib import Path
 
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
-import tkinter.messagebox           # for pop-up windows
-from PIL import Image, ImageTk       # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
+import tkinter.messagebox           # for pop-up messages
+from PIL import Image, ImageTk      # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
 
 from functions import settings
 settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
+
+from functions import pop_up_window
 
 # COLORS - FONT STYLE
 # original tkinter grey: #F0F0F0 - FYI
@@ -36,12 +38,12 @@ window_width = 447
 window_length = 290
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
-window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2-275, screen_height/2-125))
+window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2-275, screen_height/2-125))    #   position to the middle of the screen
 window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])
 # ICON
 window.iconbitmap('./skin/icon.ico')
-# RECTANGLES
+# RECTANGLE
 canvas_color = settings_data['background_color']
 canvas_frame_color = settings_data['canvas_frame_color']
 canvas = Canvas(window, width=window_width, height=window_length, background = background_color)
@@ -50,7 +52,8 @@ canvas.pack()
 # BUTTON SIZE
 button_height = 1
 button_width = 10
-
+# SEARCH FIELD LENGTH
+search_field_length = 40
 
 
 
@@ -60,76 +63,13 @@ path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse win
 
 
 ### WIDGETS
-search_field_length = 40
 ## SETTINGS BUTTON - POP UP WINDOW
-def pop_up_settings():
-    top_window = Toplevel(window)
-    top_window.title("Settings")
-    window_width = 500
-    window_length = 200
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    top_window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2+180, screen_height/2-35))    
-    top_window.resizable(0,0)
-    top_window.configure(background=settings_data['background_color'])
-    #ICON
-    top_window.iconbitmap('./skin/icon_popup.ico')
-    # RECTANGLES
-    canvas_color = settings_data['background_color']
-    canvas_frame_color = settings_data['canvas_frame_color']
-    canvas = Canvas(top_window, width=window_width, height=window_length, background = background_color)
-    # canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
-    canvas.create_rectangle(5-1, 5+2, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
-    canvas.pack()
-
-    # FIELD
-    x_field = 17
-    y_field = 20
-    # BUTTON
-    x_button = 380
-    y_button_base = 15
-
-    def y_location(gap):
-        location = y_button_base + 20 * gap
-        return location
-
-    ## YT-DLP LOCATION - FIELD + BROWSE BUTTON
-    yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
-    yt_dlp_location_field.place(x=x_field, y=y_field)
-
-    def browse_location():
-        file_name = filedialog.askopenfilename(initialdir = "/",
-                    title = "Select a File",
-                    filetypes = (("Executable", "*.exe"),
-                                ("all files", "*.*")))
-        yt_dlp_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
-        yt_dlp_location_field.insert(END,file_name)     # adding the path and the name of the selected file
-
-    yt_dlp_location_button = Button(top_window, height=button_height, width=button_width, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-    yt_dlp_location_button.place(x=x_button, y=y_location(0))
-
-    ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
-    ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
-    ffmpeg_location_field.place(x=x_field, y=y_location(2))
-
-    def browse_location():
-        file_name = filedialog.askopenfilename(initialdir = "/",
-                    title = "Select a File",
-                    filetypes = (("Executable", "*.exe"),
-                                ("all files", "*.*")))
-        ffmpeg_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
-        ffmpeg_location_field.insert(END,file_name)     # adding the path and the name of the selected file
-
-    ffmpeg_location_button = Button(top_window, height=button_height, width=button_width, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-    ffmpeg_location_button.place(x=x_button, y=y_location(2))
-
-settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = pop_up_settings, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-# settings_button.place(x=search_button_x-15, y=310)
+settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = lambda: [pop_up_window.launch(window)], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 
 
 ## DESTINATION - FIELD + BROWSE BUTTON
 destination_field = Text(window, height = 1, width = search_field_length, foreground=font_color, background="white")
-# destination_field.place(x=15, y=140)
+
 
 def browse_destination():
     dir_name = filedialog.askdirectory()
@@ -137,13 +77,11 @@ def browse_destination():
     destination_field.insert(END,dir_name)     # adding the path and the name of the selected file
 
 destination_button = Button(window, height=button_height, width=button_width, text = "Destination", command = browse_destination, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-# destination_button.place(x=search_button_x, y=138)
 
 
 ## VIDEO TITLE AND DURATION - FIELD
 title_field_length = 51
 video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
-# video_title_field.place(x=15, y=170)
 
 
 ## GET URL - BUTTON
@@ -171,6 +109,7 @@ def save_info():
     parameter = f'--get-id --get-title --get-duration --restrict-filenames --quiet'
     executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
     os.system(executable)
+  
 
 # SAVE BASIC VIDEO INFORMATION
 def extract_info():
@@ -282,13 +221,13 @@ av_options = {
 
 av_options_list=[]
 for item in av_options:
-    av_options_list += [item]       # MP3 - 2160p
+    av_options_list += [item]   # MP3 - 2160p
 
 av_options_roll_down_clicked = StringVar()
 av_options_roll_down_clicked.set("Save as")    
 av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_options_list, command=None)     
 av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
-av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
+av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground='grey')
 
 ## START - BUTTON
 def start():
@@ -361,26 +300,28 @@ display_widgets()
 window.mainloop()
 
 
-# SAVE AVAILABLE FORMATS
-def available_formats(link):
-    parameter = '-F'
-    executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
-    os.system(executable)
-    print('\n')
 
-# # UPDATE YT-DLP
+
+# SAVE AVAILABLE FORMATS
+# def available_formats(link):
+#     parameter = '-F'
+#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+#     os.system(executable)
+#     print('\n')
+
+# # # UPDATE YT-DLP
 # def update_yt_dlp():
 #     parameter = '-U'
 #     executable =  f'{path_yt_dlp} {parameter}'
 #     os.system(executable)
 
-# # OPEN YT-DLP GITHUB SITE
+# # # OPEN YT-DLP GITHUB SITE
 # def launch_yt_dlp_github():
 #     link = 'https://github.com/yt-dlp/yt-dlp'
 
 #     webbrowser.open(link)
 
-# # SAVE AVAILABLE FORMATS > FORMATS.TXT
+# # # SAVE AVAILABLE FORMATS > FORMATS.TXT
 # def save_available_formats():
 #     link = settings_data['video_url']
 #     parameter = '--print formats_table'
