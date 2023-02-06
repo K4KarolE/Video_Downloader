@@ -16,7 +16,7 @@ from pathlib import Path
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
 import tkinter.messagebox           # for pop-up windows
-from PIL import Image,ImageTk       # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
+from PIL import Image, ImageTk       # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
 
 from functions import settings
 settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
@@ -32,9 +32,9 @@ font_color = settings_data['font_color']
 # WINDOW
 window = Tk()
 window.title(settings_data['window_title'])
-width = 500
-length = 400
-window.geometry(f'{width}x{length}')
+window_width = 500
+window_length = 290
+window.geometry(f'{window_width}x{window_length}')
 window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])
 # ICON
@@ -42,11 +42,9 @@ window.iconbitmap('./skin/icon.ico')
 # RECTANGLES
 canvas_color = settings_data['background_color']
 canvas_frame_color = settings_data['canvas_frame_color']
-canvas = Canvas(window, width=width, height=length, background = background_color)
-canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
-# canvas.create_rectangle(10, 150, 340, 390, outline=canvas_frame_color, fill=canvas_color)          # INFO
-# canvas.create_rectangle(10, 150, 340, 190, outline=canvas_frame_color, fill=canvas_color)          # THUMBNAIL
-canvas.create_rectangle(10, 150, 490, 390, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
+canvas = Canvas(window, width=window_width, height=window_length, background = background_color)
+# canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
+canvas.create_rectangle(5-1, 5+1, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
 canvas.pack()
 
 path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
@@ -54,10 +52,76 @@ path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse win
 
 
 ### WIDGETS
+search_field_length = 40
+## SETTINGS BUTTON - POP UP WINDOW
+def pop_up_settings():
+    top_window = Toplevel(window)
+    top_window.geometry("500x200")
+    top_window.title("Engine Settings")
+    top_window.resizable(0,0)
+
+    # FIELD
+    x_field = 15
+    y_field = 20
+    # BUTTON
+    x_button = 380
+    y_button_base = 15
+
+    def y_location(gap):
+        location = y_button_base + 20 * gap
+        return location
+
+    ## YT-DLP LOCATION - FIELD + BROWSE BUTTON
+    yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
+    yt_dlp_location_field.place(x=x_field, y=y_field)
+
+    def browse_location():
+        file_name = filedialog.askopenfilename(initialdir = "/",
+                    title = "Select a File",
+                    filetypes = (("Executable", "*.exe"),
+                                ("all files", "*.*")))
+        yt_dlp_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+        yt_dlp_location_field.insert(END,file_name)     # adding the path and the name of the selected file
+
+    yt_dlp_location_button = Button(top_window, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+    yt_dlp_location_button.place(x=x_button, y=y_location(0))
+
+    ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
+    ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
+    ffmpeg_location_field.place(x=x_field, y=y_location(2))
+
+    def browse_location():
+        file_name = filedialog.askopenfilename(initialdir = "/",
+                    title = "Select a File",
+                    filetypes = (("Executable", "*.exe"),
+                                ("all files", "*.*")))
+        ffmpeg_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+        ffmpeg_location_field.insert(END,file_name)     # adding the path and the name of the selected file
+
+    ffmpeg_location_button = Button(top_window, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+    ffmpeg_location_button.place(x=x_button, y=y_location(2))
+
+settings_button = Button(window, text = "Settings", command = pop_up_settings, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+# settings_button.place(x=search_button_x-15, y=310)
+
+
+## DESTINATION - FIELD + BROWSE BUTTON
+destination_field = Text(window, height = 1, width = search_field_length, foreground=font_color, background="white")
+# destination_field.place(x=15, y=140)
+
+def browse_destination():
+    dir_name = filedialog.askdirectory()
+    destination_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+    destination_field.insert(END,dir_name)     # adding the path and the name of the selected file
+
+destination_button = Button(window, text = "Destination", command = browse_destination, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+# destination_button.place(x=search_button_x, y=138)
+
+
 ## VIDEO TITLE AND DURATION - FIELD
 title_field_length = 58
 video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
-video_title_field.place(x=15, y=170)
+# video_title_field.place(x=15, y=170)
 
 
 ## GET URL - BUTTON
@@ -120,9 +184,10 @@ def save_thumbnail():
     
 # DISPLAY THUMBNAIL
 my_img = Image.open(f"./thumbnail/thumbnail_default.png")
-global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
 img = ImageTk.PhotoImage(my_img)
-Label(window, image=img, background=canvas_color).place(x=15, y=200)
+thumbnail = Label(window, image=img, background=canvas_color)
+thumbnail_x = settings_data['thumbnail_location_x']
+thumbnail_y = settings_data['thumbnail_location_y']
 
 def display_thumbnail():
     try:
@@ -137,7 +202,7 @@ def display_thumbnail():
         resized_image = my_img.resize((width, height))
         global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
         img = ImageTk.PhotoImage(resized_image)
-        Label(window, image=img, background=canvas_color).place(x=15, y=200)
+        Label(window, image=img, background=canvas_color).place(x=thumbnail_x, y=thumbnail_y)
     except:
         print("ERROR - Thumbnail")
 
@@ -152,9 +217,10 @@ def display_info():
         title_length = len(settings_data['video_title'])
         duration_length = len(settings_data['video_duration'])
 
-        if title_length + duration_length + 7 >= 56:
-            cut = 56 - duration_length - 7
-            title = settings_data['video_title'][:cut] + '..  -  ' + settings_data['video_duration']
+        if title_length + duration_length + 5 >= title_field_length:
+            insert = '.. - '
+            cut = title_field_length - duration_length - len(insert) - 2
+            title = settings_data['video_title'][:cut] + insert + settings_data['video_duration']
         else:
             title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
        
@@ -232,30 +298,39 @@ button_start = Button(window, text = "START", command = start, foreground=font_c
 ### DISPLAY WIDGETS
 def display_widgets():
     # BASE VALUES
-    # X
-    x = 350
-    x_button_gap = 170
-    x_gap_for_path_objects = 5
-    # Y
-    y_base = 130
-    y_gap = 30
+    # FIELD
+    x_field = 15
+    y_field = 20
+    # BUTTON
+    x_button = 380
+    y_button_base = 15
 
-    
-    def y_location(gap_by_number):
-        display_y = y_base + y_gap * gap_by_number
-        return display_y
+    def y_button(gap):
+        location = y_button_base + 20 * gap
+        return location
+        
 
+    # DESTINATION - FIELD + BROWSE BUTTON
+    destination_field.place(x=x_field, y=y_field)
+    destination_button.place(x=x_button, y=y_button(0))
+
+    # VIDEO TITLE AND DURATION - FIELD
+    video_title_field.place(x=x_field, y=y_field + 35)
 
     # GET URL - BUTTON
-    button_get_url.place(x=x, y=y_location(3))
+    button_get_url.place(x=x_button, y=y_button(4))
 
-    # AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
-    av_options_roll_down.place(x=x, y=y_location(4.5))
+    # SAVE AS - AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
+    av_options_roll_down.place(x=x_button, y=y_button(6))
 
-
+    # SETTINGS BUTTON
+    settings_button.place(x=x_button, y=y_button(8))
 
     # START - BUTTON
-    button_start.place(x=x, y=y_location(7))
+    button_start.place(x=x_button, y=y_button(10))
+
+    # THUMBNAIL
+    thumbnail.place(x=thumbnail_x, y=thumbnail_y)
 
 
 display_widgets()
