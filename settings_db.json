@@ -1,8 +1,8 @@
 {
-  "video_ID": "",
-  "video_title": "",
-  "video_duration": "",
-  "video_url": "(x=x_butto",
+  "video_ID": "y2kg3MOk1sY",
+  "video_title": "Computer & Technology Basics Course for Absolute Beginners",
+  "video_duration": "55:03",
+  "video_url": "https://youtu.be/y2kg3MOk1sY",
   "thumbnail_location_x": 15,
   "thumbnail_location_y": 90,
   "path_yt_dlp": "D:/Applications/YouTube-DLP/yt-dlp.exe",
@@ -11,7 +11,7 @@
   "av_selected": "360p",
   "background_color": "#DEDEDE",
   "field_background_color": "#DEDEDE",
-  "canvas_frame_color": "#919191",
+  "canvas_frame_color": "#989898",
   "font_style": "Georgia",
   "font_color": "black",
   "window_title": "Video Downloader"

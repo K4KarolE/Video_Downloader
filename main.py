@@ -32,9 +32,11 @@ font_color = settings_data['font_color']
 # WINDOW
 window = Tk()
 window.title(settings_data['window_title'])
-window_width = 500
+window_width = 447
 window_length = 290
-window.geometry(f'{window_width}x{window_length}')
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2-275, screen_height/2-125))
 window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])
 # ICON
@@ -43,9 +45,15 @@ window.iconbitmap('./skin/icon.ico')
 canvas_color = settings_data['background_color']
 canvas_frame_color = settings_data['canvas_frame_color']
 canvas = Canvas(window, width=window_width, height=window_length, background = background_color)
-# canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
-canvas.create_rectangle(5-1, 5+1, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
+canvas.create_rectangle(5-1, 5+2, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)
 canvas.pack()
+# BUTTON SIZE
+button_height = 1
+button_width = 10
+
+
+
+
 
 path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
 
@@ -56,12 +64,26 @@ search_field_length = 40
 ## SETTINGS BUTTON - POP UP WINDOW
 def pop_up_settings():
     top_window = Toplevel(window)
-    top_window.geometry("500x200")
-    top_window.title("Engine Settings")
+    top_window.title("Settings")
+    window_width = 500
+    window_length = 200
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    top_window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2+180, screen_height/2-35))    
     top_window.resizable(0,0)
+    top_window.configure(background=settings_data['background_color'])
+    #ICON
+    top_window.iconbitmap('./skin/icon_popup.ico')
+    # RECTANGLES
+    canvas_color = settings_data['background_color']
+    canvas_frame_color = settings_data['canvas_frame_color']
+    canvas = Canvas(top_window, width=window_width, height=window_length, background = background_color)
+    # canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
+    canvas.create_rectangle(5-1, 5+2, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
+    canvas.pack()
 
     # FIELD
-    x_field = 15
+    x_field = 17
     y_field = 20
     # BUTTON
     x_button = 380
@@ -83,7 +105,7 @@ def pop_up_settings():
         yt_dlp_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
         yt_dlp_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
-    yt_dlp_location_button = Button(top_window, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+    yt_dlp_location_button = Button(top_window, height=button_height, width=button_width, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
     yt_dlp_location_button.place(x=x_button, y=y_location(0))
 
     ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
@@ -98,10 +120,10 @@ def pop_up_settings():
         ffmpeg_location_field.delete('1.0', END)       # once a button is clicked, removes the previous value
         ffmpeg_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
-    ffmpeg_location_button = Button(top_window, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+    ffmpeg_location_button = Button(top_window, height=button_height, width=button_width, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
     ffmpeg_location_button.place(x=x_button, y=y_location(2))
 
-settings_button = Button(window, text = "Settings", command = pop_up_settings, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = pop_up_settings, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 # settings_button.place(x=search_button_x-15, y=310)
 
 
@@ -114,12 +136,12 @@ def browse_destination():
     destination_field.delete('1.0', END)       # once a button is clicked, removes the previous value
     destination_field.insert(END,dir_name)     # adding the path and the name of the selected file
 
-destination_button = Button(window, text = "Destination", command = browse_destination, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+destination_button = Button(window, height=button_height, width=button_width, text = "Destination", command = browse_destination, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 # destination_button.place(x=search_button_x, y=138)
 
 
 ## VIDEO TITLE AND DURATION - FIELD
-title_field_length = 58
+title_field_length = 51
 video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
 # video_title_field.place(x=15, y=170)
 
@@ -234,7 +256,7 @@ def display_info():
         text_position(video_title_field)
 
 
-button_get_url = Button(window, text = "Get URL", command = lambda: [
+button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
     remove_pre_info(),
     get_url(),
     save_info(),
@@ -249,7 +271,7 @@ button_get_url = Button(window, text = "Get URL", command = lambda: [
 
 ## SAVE AS - AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
 av_options = {
-    "Audio Only": "audio only",
+    "MP3": "audio only",
     "360p": "360",
     "480p": "480",
     "720p": "720",
@@ -259,8 +281,8 @@ av_options = {
 }
 
 av_options_list=[]
-for item in av_options.keys():
-    av_options_list += [item]       # Audio Only - 2160p
+for item in av_options:
+    av_options_list += [item]       # MP3 - 2160p
 
 av_options_roll_down_clicked = StringVar()
 av_options_roll_down_clicked.set("Save as")    
@@ -291,7 +313,7 @@ def start():
     executable =  f'{path_yt_dlp} {parameter} {link}'
     os.system(executable)
 
-button_start = Button(window, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+button_start = Button(window, height=button_height, width=button_width, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 
 
 
@@ -299,35 +321,36 @@ button_start = Button(window, text = "START", command = start, foreground=font_c
 def display_widgets():
     # BASE VALUES
     # FIELD
-    x_field = 15
+    x_field = 17
     y_field = 20
     # BUTTON
-    x_button = 380
+    x_button = 350
     y_button_base = 15
+    y_diff_from_start = 15
 
     def y_button(gap):
-        location = y_button_base + 20 * gap
+        location = y_button_base + 23 * gap
         return location
         
 
     # DESTINATION - FIELD + BROWSE BUTTON
     destination_field.place(x=x_field, y=y_field)
-    destination_button.place(x=x_button, y=y_button(0))
+    destination_button.place(x=x_button, y=y_button(0)+2)
 
     # VIDEO TITLE AND DURATION - FIELD
     video_title_field.place(x=x_field, y=y_field + 35)
 
     # GET URL - BUTTON
-    button_get_url.place(x=x_button, y=y_button(4))
+    button_get_url.place(x=x_button, y=y_button(4) - y_diff_from_start)
 
     # SAVE AS - AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
-    av_options_roll_down.place(x=x_button, y=y_button(6))
+    av_options_roll_down.place(x=x_button-1, y=y_button(6) - y_diff_from_start-5)
 
     # SETTINGS BUTTON
-    settings_button.place(x=x_button, y=y_button(8))
+    settings_button.place(x=x_button, y=y_button(8) - y_diff_from_start-4)
 
     # START - BUTTON
-    button_start.place(x=x_button, y=y_button(10))
+    button_start.place(x=x_button, y=y_button(10)+1)
 
     # THUMBNAIL
     thumbnail.place(x=thumbnail_x, y=thumbnail_y)
