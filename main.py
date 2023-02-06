@@ -44,9 +44,9 @@ canvas_color = settings_data['background_color']
 canvas_frame_color = settings_data['canvas_frame_color']
 canvas = Canvas(window, width=width, height=length, background = background_color)
 canvas.create_rectangle(10, 10, 490, 370, outline=canvas_frame_color, fill=canvas_color) 
-canvas.create_rectangle(10, 150, 340, 390, outline=canvas_frame_color, fill=canvas_color)          # INFO
-canvas.create_rectangle(10, 150, 340, 190, outline=canvas_frame_color, fill=canvas_color)          # THUMBNAIL
-canvas.create_rectangle(340, 150, 490, 390, outline=canvas_frame_color, fill=canvas_color)         # BUTTONS
+# canvas.create_rectangle(10, 150, 340, 390, outline=canvas_frame_color, fill=canvas_color)          # INFO
+# canvas.create_rectangle(10, 150, 340, 190, outline=canvas_frame_color, fill=canvas_color)          # THUMBNAIL
+canvas.create_rectangle(10, 150, 490, 390, outline=canvas_frame_color, fill=canvas_color)         # INFO - THUMBNAIL - BUTTONS
 canvas.pack()
 
 path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
@@ -54,28 +54,17 @@ path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse win
 
 
 ### WIDGETS
-# AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
-av_options = {
-    "Audio Only": "audio only",
-    "360p": "360",
-    "480p": "480",
-    "720p": "720",
-    "1080p": "1080",
-    "1440p": "1440",
-    "2160p": "2160",
-}
+## VIDEO TITLE - FIELD
+title_field_length = 47
+video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
+video_title_field.place(x=15, y=170)
 
-av_options_list=[]
-for item in av_options.keys():
-    av_options_list += [item]       # Audio Only - 2160p
+## VIDEO DURATION - FIELD
+video_duration_field = Text(window, height = 1, width = 10, foreground=font_color, background="white")
+video_duration_field.place(x=400, y=170)
 
-av_options_roll_down_clicked = StringVar()
-av_options_roll_down_clicked.set("Save as")    
-av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_options_list, command=None)     
-av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
-av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
 
-## GET THE LINK - BUTTON
+## GET URL - BUTTON
 # REMOVE PREVIOUS VALUES - THUMBNAIL
 def remove_pre_info():
     try:
@@ -92,13 +81,6 @@ def get_url():
     settings_data['video_url'] = pyperclip.paste()
     settings.save_settings(settings_data)
 
-# # SAVE AVAILABLE FORMATS > FORMATS.TXT
-# def save_available_formats():
-#     link = settings_data['video_url']
-#     parameter = '--print formats_table'
-#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
-#     os.system(executable)
-#     print('\n')
 
 # # GET INFORMATION > INFO.TXT
 def save_info():
@@ -165,24 +147,39 @@ def display_thumbnail():
 
 
 # DISPLAY INFO - TITLE - DURATION
-info_text_widget = Label(window, text = "", foreground=font_color, background=background_color)
-info_text_widget.config(font =(font_style, 10))
-info_text_widget.place(x=20, y=160)
 def display_info():
+    def text_position(field):
+        field.tag_configure("tag_name", justify='center')
+        field.tag_add("tag_name", "1.0", "end")
+
     if settings_data['video_title'] != "":
-        n = 47
-        duration_length = len(settings_data['video_duration'])
-        title_length = len(settings_data['video_title'])                 
-        if title_length + duration_length + 7 >= n:
-            cut = n - duration_length - 7
+        n = title_field_length
+    
+        title_length = len(settings_data['video_title'])
+                       
+        if title_length >= n:
+            cut = n - 3
             title = settings_data['video_title'][:cut] + '..'
         else:
             title = settings_data['video_title']
-        info_text = f"{title}  -  {settings_data['video_duration']}"
-        info_text_widget.config(text = "")      # remove previous info
-        info_text_widget.config(text = info_text)
+       
+        #TITLE
+        video_title_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+        video_title_field.insert(END, title)       # adding the path and the name of the selected file
+        text_position(video_title_field)
+        #DURATION
+        video_duration_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+        video_duration_field.insert(END, settings_data['video_duration'])
+        text_position(video_duration_field)    
     else:
-        info_text_widget.config(text = "- Sorry, something went wrong -")              # remove previous info if the title is not extracted
+        #TITLE
+        video_title_field.delete('1.0', END)      
+        video_title_field.insert(END, "Sorry, something went wrong")
+        text_position(video_title_field)
+        #DURATION
+        video_duration_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+        video_duration_field.insert(END, "###")
+        text_position(video_duration_field)
 
 button_get_url = Button(window, text = "Get URL", command = lambda: [
     remove_pre_info(),
@@ -196,12 +193,29 @@ button_get_url = Button(window, text = "Get URL", command = lambda: [
 # no () in command = your_function() otherwise will execute it automatically before clicking the button
 # binding multiple commands to the same button: command = lambda: [save_settings(), engine.start_engine()]
 
-# YT-DLP PATH + BROWSE FIELD
 
-# TARGET LOCATION + BROWSE FIELD
+## SAVE AS - AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
+av_options = {
+    "Audio Only": "audio only",
+    "360p": "360",
+    "480p": "480",
+    "720p": "720",
+    "1080p": "1080",
+    "1440p": "1440",
+    "2160p": "2160",
+}
 
+av_options_list=[]
+for item in av_options.keys():
+    av_options_list += [item]       # Audio Only - 2160p
 
-# START - BUTTON
+av_options_roll_down_clicked = StringVar()
+av_options_roll_down_clicked.set("Save as")    
+av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_options_list, command=None)     
+av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
+av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground=background_color)
+
+## START - BUTTON
 def start():
     # AUDIO-VIDEO SELECTION CHECK
     if av_options_roll_down_clicked.get() not in av_options_list: 
@@ -246,10 +260,10 @@ def display_widgets():
 
 
     # GET URL - BUTTON
-    button_get_url.place(x=x, y=y_location(1))
+    button_get_url.place(x=x, y=y_location(3))
 
     # AUDIO / VIDEO OPTIONS - ROLL DOWN BUTTON
-    av_options_roll_down.place(x=x, y=y_location(2.5))
+    av_options_roll_down.place(x=x, y=y_location(4.5))
 
 
 
@@ -281,5 +295,10 @@ def available_formats(link):
 
 #     webbrowser.open(link)
 
-# # OPEN YT-DLP GITHUB / RELEASE FILES to donwload yt-dlp.exe
-# def launch_yt_dlp_download():
+# # SAVE AVAILABLE FORMATS > FORMATS.TXT
+# def save_available_formats():
+#     link = settings_data['video_url']
+#     parameter = '--print formats_table'
+#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
+#     os.system(executable)
+#     print('\n')
