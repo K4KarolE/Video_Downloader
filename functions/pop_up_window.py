@@ -52,6 +52,10 @@ def launch(window):
     ## YT-DLP LOCATION - FIELD + BROWSE BUTTON
     yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
     yt_dlp_location_field.place(x=x_field, y=y_field)
+    if settings_data['path_yt_dlp'] == "":
+        yt_dlp_location_field.insert(END,"mandatory")
+    else:
+        yt_dlp_location_field.insert(END, settings_data['path_yt_dlp'])
 
     def browse_location():
         file_name = filedialog.askopenfilename(initialdir = "/",
@@ -62,11 +66,16 @@ def launch(window):
         yt_dlp_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
     yt_dlp_location_button = Button(top_window, height=button_height, width=button_width, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-    yt_dlp_location_button.place(x=x_button, y=y_location(0))
+    yt_dlp_location_button.place(x=x_button, y=y_location(0)+2)
 
     ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
     ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
     ffmpeg_location_field.place(x=x_field, y=y_location(2))
+    if settings_data['path_ffmpeg'] == "":
+        ffmpeg_location_field.insert(END,"non-mandatory, if already added to system path")
+    else:
+        ffmpeg_location_field.insert(END, settings_data['path_ffmpeg'])
+
 
     def browse_location():
         file_name = filedialog.askopenfilename(initialdir = "/",
@@ -77,4 +86,4 @@ def launch(window):
         ffmpeg_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
     ffmpeg_location_button = Button(top_window, height=button_height, width=button_width, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-    ffmpeg_location_button.place(x=x_button, y=y_location(2))
+    ffmpeg_location_button.place(x=x_button, y=y_location(2)-2)

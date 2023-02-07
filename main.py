@@ -1,11 +1,3 @@
-'''
-ffmpeg
-
-- will be able to download higher than 720p + merge video-audio
-- https://windowsloop.com/install-ffmpeg-windows-10/#add-ffmpeg-to-Windows-path
-'''
-
- 
 import sys
 import os
 import webbrowser
@@ -15,13 +7,16 @@ from pathlib import Path
 
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
-import tkinter.messagebox           # for pop-up messages
+# import tkinter.messagebox           # for pop-up messages
 from PIL import Image, ImageTk      # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
+
+from functions import messages
 
 from functions import settings
 settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
 
 from functions import pop_up_window
+
 
 # COLORS - FONT STYLE
 # original tkinter grey: #F0F0F0 - FYI
@@ -58,12 +53,7 @@ search_field_length = 40
 
 
 
-
-path_yt_dlp = settings_data['path_yt_dlp']      # will come from UI - browse window
-
-
-
-### WIDGETS
+## WIDGETS
 ## SETTINGS BUTTON - POP UP WINDOW
 settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = lambda: [pop_up_window.launch(window)], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 
@@ -105,6 +95,7 @@ def get_url():
 
 # # GET INFORMATION > INFO.TXT
 def save_info():
+    path_yt_dlp = settings_data['path_yt_dlp']
     link = settings_data['video_url']
     info_path = './temp/info.txt'
     parameter = f'--get-id --get-title --get-duration --restrict-filenames --quiet'
@@ -138,6 +129,8 @@ def save_thumbnail():
     # else:
     #     add_path_ffmpeg = None
     if settings_data['video_title'] != "":
+        # YT-DLP
+        path_yt_dlp = settings_data['path_yt_dlp']
         link = settings_data['video_url']
         path = 'thumbnail'
         parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path} --quiet' % {'NAME': "thumbnail"}
@@ -197,18 +190,20 @@ def display_info():
         video_title_field.insert(END, "- - Sorry, something went wrong - -")
         text_position(video_title_field)
 
+if settings_data['path_yt_dlp'] != "":
+    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
+        remove_pre_info(),
+        get_url(),
+        save_info(),
+        extract_info(),
+        save_thumbnail(),
+        display_thumbnail(),
+        display_info()
+    ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
+else:
+    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [messages.error_pop_up('no_yt_dlp')],        # greay out `Get URL` button: foreground="grey"
+                            foreground="grey", background=background_color, activeforeground=background_color, activebackground=font_color)
 
-button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
-    remove_pre_info(),
-    get_url(),
-    save_info(),
-    extract_info(),
-    save_thumbnail(),
-    display_thumbnail(),
-    display_info()
- ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
-# no () in command = your_function() otherwise will execute it automatically before clicking the button
-# binding multiple commands to the same button: command = lambda: [save_settings(), engine.start_engine()]
 
 
 ## SAVE AS - AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
@@ -239,22 +234,22 @@ def start():
     ## VALUE CHECKS - MESSAGES
     # DESTINATION FOLDER ADDED
     if destination_field.get("1.0", "end-1c") == "":
-        print('Folder')
+        messages.error_pop_up('destination_folder')
         return
     
     # TITLE FIELD - GET URL USED
     if video_title_field.get("1.0", "end-1c") == "":
-        print('Video URL')
+        messages.error_pop_up('no_URL')
         return
 
     # RESOLUTION - MP3 - SELECTION
     if av_options_roll_down_clicked.get() not in av_options_list:       # SAVE AS - DEFAULT
-        print('Select the Audio/Video option')
+        messages.error_pop_up('no_resolution')
         return
     
-    # YT-DLP
+    # YT-DLP    - already checked with the "Get URL", why checking here too: unique scenario, YT-DLP added, rest of the req.es added(destonation, link) and YT-DLP removed before click START
     if settings_data['path_yt_dlp'] == "":
-        print('YT-DLP')
+        messages.error_pop_up('no_yt_dlp')
         return
 
     ## SAVE DATA
@@ -268,6 +263,7 @@ def start():
     link = settings_data['video_url']
     selected_resolution = av_options[av_selected]       #av_options['720p']
     path = destination_field.get("1.0", "end-1c")
+    path_yt_dlp = settings_data['path_yt_dlp']
     if selected_resolution.isdecimal():                 # 360 - 2160
         parameter = f'-S "res:{selected_resolution}" --paths {path} -q --progress'      # Download the best video available with the largest resolution but no better than {selected_resolution},
     else:                                                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
