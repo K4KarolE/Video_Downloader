@@ -1,5 +1,12 @@
+# SETTINGS BUTTON - POP UP WINDOW
+
 from tkinter import *
 from tkinter import filedialog
+
+import webbrowser
+import os
+
+from functions import messages
 
 from functions import settings
 settings_data = settings.open_settings()
@@ -18,40 +25,31 @@ button_width = 10
 # SEARCH FIELD LENGTH
 search_field_length = 40
 
-## SETTINGS BUTTON - POP UP WINDOW
 def launch(window):
+# WINDOW     
     top_window = Toplevel(window)
     top_window.title("Settings")
     window_width = 447
-    window_length = 200
+    window_length = 138
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
     top_window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2+180, screen_height/2-35))    
     top_window.resizable(0,0)
     top_window.configure(background=settings_data['background_color'])
-    #ICON
+# ICON
     top_window.iconbitmap('./skin/icon_popup.ico')
-    # RECTANGLES
+# RECTANGLES
     canvas_color = settings_data['background_color']
     canvas_frame_color = settings_data['canvas_frame_color']
     canvas = Canvas(top_window, width=window_width, height=window_length, background = background_color)
     canvas.create_rectangle(5-1, 5+2, window_width-5, window_length-5, outline=canvas_frame_color, fill=canvas_color)
     canvas.pack()
 
-    # FIELD
-    x_field = 17
-    y_field = 20
-    # BUTTON
-    x_button = 350
-    y_button_base = 15
-
-    def y_location(gap):
-        location = y_button_base + 20 * gap
-        return location
-
-    ## YT-DLP LOCATION - FIELD + BROWSE BUTTON
+## WIDGETS
+## YT-DLP LOCATION - FIELD + BROWSE BUTTON
     yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
-    yt_dlp_location_field.place(x=x_field, y=y_field)
+    # yt_dlp_location_field.place(x=x_field, y=y_field)
+
     if settings_data['path_yt_dlp'] == "":
         yt_dlp_location_field.insert(END,"mandatory")
     else:
@@ -66,16 +64,14 @@ def launch(window):
         yt_dlp_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
     yt_dlp_location_button = Button(top_window, height=button_height, width=button_width, text = "YT-DLP", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-    yt_dlp_location_button.place(x=x_button, y=y_location(0)+2)
 
-    ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
+
+## FFMPEG LOCATION - FIELD + BROWSE BUTTON
     ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
-    ffmpeg_location_field.place(x=x_field, y=y_location(2))
     if settings_data['path_ffmpeg'] == "":
         ffmpeg_location_field.insert(END,"non-mandatory, if already added to system path")
     else:
         ffmpeg_location_field.insert(END, settings_data['path_ffmpeg'])
-
 
     def browse_location():
         file_name = filedialog.askopenfilename(initialdir = "/",
@@ -86,4 +82,62 @@ def launch(window):
         ffmpeg_location_field.insert(END,file_name)     # adding the path and the name of the selected file
 
     ffmpeg_location_button = Button(top_window, height=button_height, width=button_width, text = "FFmpeg", command = browse_location, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+
+## HELP BUTTON
+    def help():
+        webbrowser.open('https://github.com/K4KarolE/Video_Downloader#guide')
+    help_button = Button(top_window, height=button_height, width=button_width, text = "Help", command = help, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+
+## UPDATE YT-DLP
+    def update_yt_dlp():
+        path_yt_dlp = settings_data['path_yt_dlp']
+        parameter = '-U'
+        executable =  f'{path_yt_dlp} {parameter}'
+        os.system(executable)
+
+    update_yt_dlp_button = Button(top_window, height=button_height, width=button_width+5, text = "Update YT-DLP", command = update_yt_dlp, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+
+## SAVE
+    def save():
+        path_yt_dlp = yt_dlp_location_field.get("1.0", "end-1c")
+        if "mandatory" not in path_yt_dlp:
+            settings_data['path_yt_dlp'] = path_yt_dlp
+
+        path_ffmpeg = ffmpeg_location_field.get("1.0", "end-1c")
+        if "mandatory" not in path_ffmpeg:
+            settings_data['path_ffmpeg'] = path_ffmpeg
+
+        settings.save_settings(settings_data)
+        messages.error_pop_up('Confirmation','saved')
+        # settings_data = settings.open_settings()
+
+    save_button = Button(top_window, height=button_height, width=button_width, text = "Save", command = save, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+
+## DISPLAY WIDGETS
+    # FIELD
+    x_field = 17
+    y_field = 20
+    # BUTTON
+    x_button = 350
+    y_button_base = 15
+
+    def y_location(gap):
+        location = y_button_base + 20 * gap
+        return location
+
+    # YT-DLP LOCATION - FIELD + BROWSE BUTTON
+    yt_dlp_location_field.place(x=x_field, y=y_field)
+    yt_dlp_location_button.place(x=x_button, y=y_location(0)+2)
+
+    # FFMPEG LOCATION - FIELD + BROWSE BUTTON
+    ffmpeg_location_field.place(x=x_field, y=y_location(2))
     ffmpeg_location_button.place(x=x_button, y=y_location(2)-2)
+
+    # HELP BUTTON
+    help_button.place(x=x_field, y=y_location(4))
+
+    # UPDATE YT-DLP - BUTTON
+    update_yt_dlp_button.place(x=x_field+80, y=y_location(4))
+
+    # SAVE BUTTON
+    save_button.place(x=x_button, y=y_location(4))

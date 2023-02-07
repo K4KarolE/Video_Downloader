@@ -1,6 +1,5 @@
 import sys
 import os
-import webbrowser
 import pyperclip
 
 from pathlib import Path
@@ -122,18 +121,12 @@ def extract_info():
 
 # SAVE THUMBNAIL
 def save_thumbnail():
-     # FFMPEG PATH      -  settings_data['path_ffmpeg'] = "--ffmpeg-location PATH"   
-    # if settings_data['path_ffmpeg'] != "":          # if ffmpeg not added to the windows path - ffmpeg path browse field is used
-    #     path_ffmpeg = settings_data['path_ffmpeg']
-    #     add_path_ffmpeg = f'--ffmpeg-location {path_ffmpeg}'
-    # else:
-    #     add_path_ffmpeg = None
     if settings_data['video_title'] != "":
         # YT-DLP
         path_yt_dlp = settings_data['path_yt_dlp']
         link = settings_data['video_url']
         path = 'thumbnail'
-        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths {path} --quiet' % {'NAME': "thumbnail"}
+        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths "{path}" --quiet' % {'NAME': "thumbnail"}
         executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
         os.system(executable)
     
@@ -187,10 +180,10 @@ def display_info():
        
     else:
         video_title_field.delete('1.0', END)      
-        video_title_field.insert(END, "- - Sorry, something went wrong - -")
+        video_title_field.insert(END, "- - Sorry, is the video link correct? - -")
         text_position(video_title_field)
 
-if settings_data['path_yt_dlp'] != "":
+if settings_data['path_yt_dlp'] != "" and "mandatory" not in settings_data['path_yt_dlp']:
     button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
         remove_pre_info(),
         get_url(),
@@ -201,7 +194,7 @@ if settings_data['path_yt_dlp'] != "":
         display_info()
     ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
 else:
-    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [messages.error_pop_up('no_yt_dlp')],        # greay out `Get URL` button: foreground="grey"
+    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [messages.error_pop_up('Error','no_yt_dlp')],        # greay out `Get URL` button: foreground="grey"
                             foreground="grey", background=background_color, activeforeground=background_color, activebackground=font_color)
 
 
@@ -234,23 +227,26 @@ def start():
     ## VALUE CHECKS - MESSAGES
     # DESTINATION FOLDER ADDED
     if destination_field.get("1.0", "end-1c") == "":
-        messages.error_pop_up('destination_folder')
+        messages.error_pop_up('Error','destination_folder')
         return
     
     # TITLE FIELD - GET URL USED
     if video_title_field.get("1.0", "end-1c") == "":
-        messages.error_pop_up('no_URL')
+        messages.error_pop_up('Error', 'no_URL')
         return
 
     # RESOLUTION - MP3 - SELECTION
     if av_options_roll_down_clicked.get() not in av_options_list:       # SAVE AS - DEFAULT
-        messages.error_pop_up('no_resolution')
+        messages.error_pop_up('Error', 'no_resolution')
         return
     
-    # YT-DLP    - already checked with the "Get URL", why checking here too: unique scenario, YT-DLP added, rest of the req.es added(destonation, link) and YT-DLP removed before click START
+    # YT-DLP    - already checked with the "Get URL", why checking here too: unique scenario, YT-DLP added, rest of the req.es added(destination, URL) and YT-DLP removed before click START
+    settings_data = settings.open_settings()    # otherwise it will use the value pulled from DB at the start of the program
     if settings_data['path_yt_dlp'] == "":
-        messages.error_pop_up('no_yt_dlp')
+        messages.error_pop_up('Error', 'no_yt_dlp')
         return
+    
+    
 
     ## SAVE DATA
     # DESTINATION
@@ -264,12 +260,23 @@ def start():
     selected_resolution = av_options[av_selected]       #av_options['720p']
     path = destination_field.get("1.0", "end-1c")
     path_yt_dlp = settings_data['path_yt_dlp']
+    
+    # FFMPEG PATH 
+    if settings_data['path_ffmpeg'] != "":          # if ffmpeg not added to the windows path - ffmpeg path browse field is used
+        path_ffmpeg = settings_data['path_ffmpeg']
+        add_path_ffmpeg = f'--ffmpeg-location "{path_ffmpeg}"'
+    else:
+        add_path_ffmpeg = ""
+    
+    # PARAMETER COMPILING
     if selected_resolution.isdecimal():                 # 360 - 2160
-        parameter = f'-S "res:{selected_resolution}" --paths {path} -q --progress'      # Download the best video available with the largest resolution but no better than {selected_resolution},
-    else:                                                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = f'-x --audio-format mp3 --paths {path} -q --progress'               # Audio Only
-
+        parameter = f'-S "res:{selected_resolution}" --paths "{path}" -q --progress {add_path_ffmpeg}'      # Download the best video available with the largest resolution but no better than {selected_resolution},
+    else:
+        print('ffmps')                                                                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
+        parameter = f'-x --audio-format mp3 --paths "{path}" -q --progress {add_path_ffmpeg}'               # Audio Only
+    
     executable =  f'{path_yt_dlp} {parameter} {link}'
+
     os.system(executable)
 
 button_start = Button(window, height=button_height, width=button_width, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
@@ -321,30 +328,9 @@ window.mainloop()
 
 
 
-
 # SAVE AVAILABLE FORMATS
 # def available_formats(link):
 #     parameter = '-F'
-#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
-#     os.system(executable)
-#     print('\n')
-
-# # # UPDATE YT-DLP
-# def update_yt_dlp():
-#     parameter = '-U'
-#     executable =  f'{path_yt_dlp} {parameter}'
-#     os.system(executable)
-
-# # # OPEN YT-DLP GITHUB SITE
-# def launch_yt_dlp_github():
-#     link = 'https://github.com/yt-dlp/yt-dlp'
-
-#     webbrowser.open(link)
-
-# # # SAVE AVAILABLE FORMATS > FORMATS.TXT
-# def save_available_formats():
-#     link = settings_data['video_url']
-#     parameter = '--print formats_table'
 #     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
 #     os.system(executable)
 #     print('\n')
