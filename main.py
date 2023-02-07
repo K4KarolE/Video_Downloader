@@ -78,6 +78,7 @@ video_title_field = Text(window, height = 1, width = title_field_length, foregro
 # REMOVE PREVIOUS VALUES - THUMBNAIL
 def remove_pre_info():
     try:
+        settings_data = settings.open_settings()
         settings_data['video_ID'] = ""
         settings_data['video_title'] = ""
         settings_data['video_duration'] = ""
@@ -88,16 +89,18 @@ def remove_pre_info():
 
 # GET URL
 def get_url():
+    settings_data = settings.open_settings()
     settings_data['video_url'] = pyperclip.paste()
     settings.save_settings(settings_data)
 
 
 # # GET INFORMATION > INFO.TXT
 def save_info():
+    settings_data = settings.open_settings()
     path_yt_dlp = settings_data['path_yt_dlp']
     link = settings_data['video_url']
     info_path = './temp/info.txt'
-    parameter = f'--get-id --get-title --get-duration --restrict-filenames --quiet'
+    parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
     executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
     os.system(executable)
   
@@ -105,10 +108,11 @@ def save_info():
 # SAVE BASIC VIDEO INFORMATION
 def extract_info():
     try:
+        settings_data = settings.open_settings()
         file = open('./temp/info.txt','r+')
         listFile = list(file)
-        video_ID = listFile[1].strip('\n')
-        video_title = listFile[0].strip('\n')      
+        video_ID = listFile[0].strip('\n')
+        video_title = listFile[1].strip('\n')      
         video_duration = listFile[2].strip('\n')
         if ':' not in video_duration:
             video_duration = video_duration + 's'
@@ -117,10 +121,11 @@ def extract_info():
         settings_data['video_duration'] = video_duration
         settings.save_settings(settings_data)
     except:
-        print('ERROR - WRONG LINK')
+        pass
 
 # SAVE THUMBNAIL
 def save_thumbnail():
+    settings_data = settings.open_settings()
     if settings_data['video_title'] != "":
         # YT-DLP
         path_yt_dlp = settings_data['path_yt_dlp']
@@ -139,6 +144,7 @@ thumbnail_y = settings_data['thumbnail_location_y']
 
 def display_thumbnail():
     try:
+        settings_data = settings.open_settings()
         if settings_data['video_title'] != "":
             file_name = "thumbnail.png"
         else:
@@ -152,11 +158,13 @@ def display_thumbnail():
         img = ImageTk.PhotoImage(resized_image)
         Label(window, image=img, background=canvas_color).place(x=thumbnail_x, y=thumbnail_y)
     except:
-        print("ERROR - Thumbnail")
+        pass
 
 
 # DISPLAY INFO - TITLE - DURATION
 def display_info():
+    settings_data = settings.open_settings()
+
     def text_position(field):
         field.tag_configure("tag_name", justify='center')
         field.tag_add("tag_name", "1.0", "end")
@@ -183,19 +191,25 @@ def display_info():
         video_title_field.insert(END, "- - Sorry, is the video link correct? - -")
         text_position(video_title_field)
 
-if settings_data['path_yt_dlp'] != "" and "mandatory" not in settings_data['path_yt_dlp']:
-    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
-        remove_pre_info(),
-        get_url(),
-        save_info(),
-        extract_info(),
-        save_thumbnail(),
-        display_thumbnail(),
-        display_info()
+def yt_dlp_path_valuation():
+    settings_data = settings.open_settings()
+    if settings_data['path_yt_dlp'] != "" and "mandatory" not in settings_data['path_yt_dlp']:
+        pass
+    else:
+        messages.error_pop_up('Error','no_yt_dlp')     
+
+
+
+button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
+    yt_dlp_path_valuation(),
+    remove_pre_info(),
+    get_url(),
+    save_info(),
+    extract_info(),
+    save_thumbnail(),
+    display_thumbnail(),
+    display_info()
     ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
-else:
-    button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [messages.error_pop_up('Error','no_yt_dlp')],        # greay out `Get URL` button: foreground="grey"
-                            foreground="grey", background=background_color, activeforeground=background_color, activebackground=font_color)
 
 
 
@@ -271,8 +285,7 @@ def start():
     # PARAMETER COMPILING
     if selected_resolution.isdecimal():                 # 360 - 2160
         parameter = f'-S "res:{selected_resolution}" --paths "{path}" -q --progress {add_path_ffmpeg}'      # Download the best video available with the largest resolution but no better than {selected_resolution},
-    else:
-        print('ffmps')                                                                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
+    else:                                                                                           # or the best video with the smallest resolution if there is no video under {selected_resolution}
         parameter = f'-x --audio-format mp3 --paths "{path}" -q --progress {add_path_ffmpeg}'               # Audio Only
     
     executable =  f'{path_yt_dlp} {parameter} {link}'

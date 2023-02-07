@@ -11,6 +11,8 @@ from functions import messages
 from functions import settings
 settings_data = settings.open_settings()
 
+
+
 # COLORS - FONT STYLE
 background_color = settings_data['background_color'] 
 field_background_color = settings_data['field_background_color'] 
@@ -33,7 +35,7 @@ def launch(window):
     window_length = 138
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-    top_window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2+180, screen_height/2-35))    
+    top_window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2+180, screen_height/2+27))    
     top_window.resizable(0,0)
     top_window.configure(background=settings_data['background_color'])
 # ICON
@@ -99,6 +101,7 @@ def launch(window):
 
 ## SAVE
     def save():
+        settings_data = settings.open_settings()
         path_yt_dlp = yt_dlp_location_field.get("1.0", "end-1c")
         if "mandatory" not in path_yt_dlp:
             settings_data['path_yt_dlp'] = path_yt_dlp
@@ -109,9 +112,13 @@ def launch(window):
 
         settings.save_settings(settings_data)
         messages.error_pop_up('Confirmation','saved')
-        # settings_data = settings.open_settings()
+        
+    # def update_db():
+    #     settings_data = settings.open_settings()
+    #     return settings_data
+        
 
-    save_button = Button(top_window, height=button_height, width=button_width, text = "Save", command = save, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+    save_button = Button(top_window, height=button_height, width=button_width, text = "Save", command = lambda: [save()], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 
 ## DISPLAY WIDGETS
     # FIELD
