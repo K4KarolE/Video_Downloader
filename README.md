@@ -10,7 +10,13 @@
 ## In the making
 
 <div align="center">
-    <img src="docs/promo/screenshot.png" </img> 
+    <img src="docs/promo/screenshot_1.png" </img> 
+</div>
+
+<br>
+
+<div align="center">
+    <img src="docs/promo/screenshot_2.png" </img> 
 </div>
 
 ## Where can be used

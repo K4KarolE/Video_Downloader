@@ -178,11 +178,12 @@ def display_info():
     if settings_data['video_title'] != "":
         title_length = len(settings_data['video_title'])
         duration_length = len(settings_data['video_duration'])
+        # title_field_length = 51
 
         if title_length + duration_length + 5 >= title_field_length:
             insert = '.. - '
-            font_style_dependent_correction = 8     # Gerogia: -2, Arial: 8
-            cut = title_field_length - duration_length - len(insert) + font_style_dependent_correction         
+            font_style_dependent_correction = -6
+            cut = title_field_length - duration_length - len(insert) - font_style_dependent_correction         
             title = settings_data['video_title'][:cut] + insert + settings_data['video_duration']
         else:
             title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
