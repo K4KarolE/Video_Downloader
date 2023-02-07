@@ -8,6 +8,7 @@ settings_data = settings.open_settings()
 background_color = settings_data['background_color'] 
 field_background_color = settings_data['field_background_color'] 
 font_style = settings_data['font_style']
+font_size = settings_data['font_size']
 font_color = settings_data['font_color']
 
 # BUTTON SIZE
@@ -49,7 +50,7 @@ def launch(window):
         return location
 
     ## YT-DLP LOCATION - FIELD + BROWSE BUTTON
-    yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
+    yt_dlp_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
     yt_dlp_location_field.place(x=x_field, y=y_field)
 
     def browse_location():
@@ -64,7 +65,7 @@ def launch(window):
     yt_dlp_location_button.place(x=x_button, y=y_location(0))
 
     ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
-    ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white")
+    ffmpeg_location_field = Text(top_window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
     ffmpeg_location_field.place(x=x_field, y=y_location(2))
 
     def browse_location():

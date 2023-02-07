@@ -4,7 +4,7 @@ ffmpeg
 - will be able to download higher than 720p + merge video-audio
 - https://windowsloop.com/install-ffmpeg-windows-10/#add-ffmpeg-to-Windows-path
 '''
-# test link: https://youtu.be/7AwWEU5nsBA
+
  
 import sys
 import os
@@ -28,6 +28,7 @@ from functions import pop_up_window
 background_color = settings_data['background_color'] 
 field_background_color = settings_data['field_background_color'] 
 font_style = settings_data['font_style']
+font_size = settings_data['font_size']
 font_color = settings_data['font_color']
 
 
@@ -68,8 +69,8 @@ settings_button = Button(window, height=button_height, width=button_width, text 
 
 
 ## DESTINATION - FIELD + BROWSE BUTTON
-destination_field = Text(window, height = 1, width = search_field_length, foreground=font_color, background="white")
-
+destination_field = Text(window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
+destination_field.insert(END,settings_data['path_target_location'])     # loading the previously used destination folder
 
 def browse_destination():
     dir_name = filedialog.askdirectory()
@@ -81,7 +82,7 @@ destination_button = Button(window, height=button_height, width=button_width, te
 
 ## VIDEO TITLE AND DURATION - FIELD
 title_field_length = 51
-video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background="white")
+video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background=background_color, font=(font_style, font_size))
 
 
 ## GET URL - BUTTON
@@ -180,7 +181,8 @@ def display_info():
 
         if title_length + duration_length + 5 >= title_field_length:
             insert = '.. - '
-            cut = title_field_length - duration_length - len(insert) - 2
+            font_style_dependent_correction = 8     # Gerogia: -2, Arial: 8
+            cut = title_field_length - duration_length - len(insert) + font_style_dependent_correction         
             title = settings_data['video_title'][:cut] + insert + settings_data['video_duration']
         else:
             title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
@@ -229,25 +231,46 @@ av_options_roll_down = OptionMenu( window, av_options_roll_down_clicked, *av_opt
 av_options_roll_down.configure(foreground=font_color, background=background_color, activeforeground = font_color, activebackground=background_color, highlightbackground=background_color)
 av_options_roll_down['menu'].configure(foreground=font_color, background=background_color, activebackground='grey')
 
+
 ## START - BUTTON
 def start():
-    # AUDIO-VIDEO SELECTION CHECK
-    if av_options_roll_down_clicked.get() not in av_options_list: 
-        print('Select the Audio/Video option')
+
+    ## VALUE CHECKS - MESSAGES
+    # DESTINATION FOLDER ADDED
+    if destination_field.get("1.0", "end-1c") == "":
+        print('Folder')
+        return
+    
+    # TITLE FIELD - GET URL USED
+    if video_title_field.get("1.0", "end-1c") == "":
+        print('Video URL')
         return
 
-    settings_data['av_selected'] = av_options_roll_down_clicked.get()
+    # RESOLUTION - MP3 - SELECTION
+    if av_options_roll_down_clicked.get() not in av_options_list:       # SAVE AS - DEFAULT
+        print('Select the Audio/Video option')
+        return
+    
+    # YT-DLP
+    if settings_data['path_yt_dlp'] == "":
+        print('YT-DLP')
+        return
 
-    settings.save_settings(settings_data)
+    ## SAVE DATA
+    # DESTINATION
+    if settings_data['path_target_location'] != destination_field.get("1.0", "end-1c"):
+        settings_data['path_target_location'] = destination_field.get("1.0", "end-1c")
+        settings.save_settings(settings_data)
+
+    ## DOWNLOAD
     av_selected = av_options_roll_down_clicked.get()
     link = settings_data['video_url']
     selected_resolution = av_options[av_selected]       #av_options['720p']
-    
-    path = settings_data['path_target_location']
+    path = destination_field.get("1.0", "end-1c")
     if selected_resolution.isdecimal():                 # 360 - 2160
-        parameter = f'-S "res:{selected_resolution}" --paths {path} -q --progress'   # Download the best video available with the largest resolution but no better than {selected_resolution},
-    else:                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = f'-x --audio-format mp3 --paths {path} -q --progress'             # Audio Only
+        parameter = f'-S "res:{selected_resolution}" --paths {path} -q --progress'      # Download the best video available with the largest resolution but no better than {selected_resolution},
+    else:                                                                               # or the best video with the smallest resolution if there is no video under {selected_resolution}
+        parameter = f'-x --audio-format mp3 --paths {path} -q --progress'               # Audio Only
 
     executable =  f'{path_yt_dlp} {parameter} {link}'
     os.system(executable)
