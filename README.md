@@ -1,4 +1,4 @@
-# Video Downloader - In Progress
+# Video Downloader
 - Takes the video link from clipboard
     - Displaying the thumbnail, video title and duration
 - Video resolution / just audio selectable
@@ -8,15 +8,15 @@
     - [FFmpeg](https://ffmpeg.org/) path
 
 <div align="center">
-    <img src="docs/promo/screenshot_1.png" </img> 
+    <img src="screenshot/screenshot_1.png" </img> 
 </div>
 <br>
 <div align="center">
-    <img src="docs/promo/screenshot_2.png" </img> 
+    <img src="screenshot/screenshot_2.png" </img> 
 </div>
 <br>
 <div align="center">
-    <img src="docs/promo/screenshot_3.png" </img> 
+    <img src="screenshot/screenshot_3.png" </img> 
 </div>
 
 # Requirements
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 - `Windows` (tested on 10)
 
 # Guide
-- `Save as` \ `MP3` - saves the best audio source and converts the file to MP3
+- `Save as` \ `MP3` - saves the best audio source and converts it to MP3
 - `Save as` \ video resolutions:
     - Download the best video available with the largest resolution but no better than the selected_resolution (no conversion)
     - Or the best video with the smallest resolution if there is no video under the selected_resolution (no conversion)
