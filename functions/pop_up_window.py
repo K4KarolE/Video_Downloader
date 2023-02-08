@@ -13,21 +13,22 @@ settings_data = settings.open_settings()
 
 
 
-# COLORS - FONT STYLE
-background_color = settings_data['background_color'] 
-field_background_color = settings_data['field_background_color'] 
-font_style = settings_data['font_style']
-font_size = settings_data['font_size']
-font_color = settings_data['font_color']
-
-# BUTTON SIZE
-button_height = 1
-button_width = 10
 
 # SEARCH FIELD LENGTH
 search_field_length = 40
 
 def launch(window):
+    settings_data = settings.open_settings()
+# COLORS - FONT STYLE
+    background_color = settings_data['background_color'] 
+    field_background_color = settings_data['field_background_color'] 
+    font_style = settings_data['font_style']
+    font_size = settings_data['font_size']
+    font_color = settings_data['font_color']
+
+# BUTTON SIZE
+    button_height = 1
+    button_width = 10
 # WINDOW     
     top_window = Toplevel(window)
     top_window.title("Settings")
@@ -112,11 +113,7 @@ def launch(window):
 
         settings.save_settings(settings_data)
         messages.error_pop_up('Confirmation','saved')
-        
-    # def update_db():
-    #     settings_data = settings.open_settings()
-    #     return settings_data
-        
+             
 
     save_button = Button(top_window, height=button_height, width=button_width, text = "Save", command = lambda: [save()], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
 

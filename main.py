@@ -1,19 +1,16 @@
-import sys
+
 import os
 import pyperclip
 
-from pathlib import Path
-
 from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
-# import tkinter.messagebox           # for pop-up messages
-from PIL import Image, ImageTk      # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
+
+from PIL import Image               # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
+from PIL import ImageTk  
 
 from functions import messages
-
 from functions import settings
 settings_data = settings.open_settings()        # access to the saved/default settings (settings_db.json)
-
 from functions import pop_up_window
 
 
@@ -51,7 +48,6 @@ button_width = 10
 search_field_length = 40
 
 
-
 ## WIDGETS
 ## SETTINGS BUTTON - POP UP WINDOW
 settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = lambda: [pop_up_window.launch(window)], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
@@ -76,65 +72,6 @@ video_title_field = Text(window, height = 1, width = title_field_length, foregro
 
 ## GET URL - BUTTON
 # REMOVE PREVIOUS VALUES - THUMBNAIL
-def remove_pre_info():
-    try:
-        settings_data = settings.open_settings()
-        settings_data['video_ID'] = ""
-        settings_data['video_title'] = ""
-        settings_data['video_duration'] = ""
-        settings.save_settings(settings_data)
-        os.remove('./thumbnail/thumbnail.png')
-    except:
-        pass
-
-# GET URL
-def get_url():
-    settings_data = settings.open_settings()
-    settings_data['video_url'] = pyperclip.paste()
-    settings.save_settings(settings_data)
-
-
-# # GET INFORMATION > INFO.TXT
-def save_info():
-    settings_data = settings.open_settings()
-    path_yt_dlp = settings_data['path_yt_dlp']
-    link = settings_data['video_url']
-    info_path = './temp/info.txt'
-    parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
-    executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
-    os.system(executable)
-  
-
-# SAVE BASIC VIDEO INFORMATION
-def extract_info():
-    try:
-        settings_data = settings.open_settings()
-        file = open('./temp/info.txt','r+')
-        listFile = list(file)
-        video_ID = listFile[0].strip('\n')
-        video_title = listFile[1].strip('\n')      
-        video_duration = listFile[2].strip('\n')
-        if ':' not in video_duration:
-            video_duration = video_duration + 's'
-        settings_data['video_ID'] = video_ID
-        settings_data['video_title'] = video_title
-        settings_data['video_duration'] = video_duration
-        settings.save_settings(settings_data)
-    except:
-        pass
-
-# SAVE THUMBNAIL
-def save_thumbnail():
-    settings_data = settings.open_settings()
-    if settings_data['video_title'] != "":
-        # YT-DLP
-        path_yt_dlp = settings_data['path_yt_dlp']
-        link = settings_data['video_url']
-        path = 'thumbnail'
-        parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths "{path}" --quiet' % {'NAME': "thumbnail"}
-        executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
-        os.system(executable)
-    
 # DISPLAY THUMBNAIL
 my_img = Image.open(f"./thumbnail/thumbnail_default.png")
 img = ImageTk.PhotoImage(my_img)
@@ -142,65 +79,111 @@ thumbnail = Label(window, image=img, background=canvas_color)
 thumbnail_x = settings_data['thumbnail_location_x']
 thumbnail_y = settings_data['thumbnail_location_y']
 
-def display_thumbnail():
-    try:
-        settings_data = settings.open_settings()
+def button_get_url_actions():
+
+    settings_data = settings.open_settings()
+
+    def remove_pre_info():
+        try:
+            settings_data['video_ID'] = ""
+            settings_data['video_title'] = ""
+            settings_data['video_duration'] = ""
+            settings.save_settings(settings_data)
+            os.remove('./thumbnail/thumbnail.png')
+        except:
+            pass
+
+    def get_url():
+        settings_data['video_url'] = pyperclip.paste()
+        settings.save_settings(settings_data)
+
+    # GET INFORMATION > INFO.TXT
+    def save_info():
+        path_yt_dlp = settings_data['path_yt_dlp']
+        link = settings_data['video_url']
+        info_path = './temp/info.txt'
+        parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
+        executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
+        os.system(executable)
+    
+    # SAVE INFORMATION > SETTINGS DB
+    def extract_info():
+        try:
+            file = open('./temp/info.txt','r+')
+            listFile = list(file)
+            video_ID = listFile[0].strip('\n')
+            video_title = listFile[1].strip('\n')      
+            video_duration = listFile[2].strip('\n')
+            if ':' not in video_duration:
+                video_duration = video_duration + 's'
+            settings_data['video_ID'] = video_ID
+            settings_data['video_title'] = video_title
+            settings_data['video_duration'] = video_duration
+            settings.save_settings(settings_data)
+        except:
+            pass
+
+    def save_thumbnail():
         if settings_data['video_title'] != "":
-            file_name = "thumbnail.png"
+            # YT-DLP
+            path_yt_dlp = settings_data['path_yt_dlp']
+            link = settings_data['video_url']
+            path = 'thumbnail'
+            parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths "{path}" --quiet' % {'NAME': "thumbnail"}
+            executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
+            os.system(executable)
+        
+    def display_thumbnail():
+        try:
+            if settings_data['video_title'] != "":
+                file_name = "thumbnail.png"
+            else:
+                file_name = "thumbnail_error.png"
+            my_img = Image.open(f"./thumbnail/{file_name}")
+            n = 4
+            width = int(1280 / n)
+            height = int(720 / n)
+            resized_image = my_img.resize((width, height))
+            global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
+            img = ImageTk.PhotoImage(resized_image)
+            Label(window, image=img, background=canvas_color).place(x=thumbnail_x, y=thumbnail_y)
+        except:
+            pass
+
+    # DISPLAY INFO - TITLE - DURATION
+    def display_info():
+
+        def text_position(field):
+            field.tag_configure("tag_name", justify='center')
+            field.tag_add("tag_name", "1.0", "end")
+
+        if settings_data['video_title'] != "":
+            title_length = len(settings_data['video_title'])
+            duration_length = len(settings_data['video_duration'])
+
+            if title_length + duration_length + 5 >= title_field_length:
+                insert = '.. - '
+                font_style_dependent_correction = -6
+                cut = title_field_length - duration_length - len(insert) - font_style_dependent_correction         
+                title = settings_data['video_title'][:cut] + insert + settings_data['video_duration']
+            else:
+                title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
+        
+            video_title_field.delete('1.0', END)       # once a button is clicked, removes the previous value
+            video_title_field.insert(END, title)       # adding the path and the name of the selected file
+            text_position(video_title_field)
+        
         else:
-            file_name = "thumbnail_error.png"
-        my_img = Image.open(f"./thumbnail/{file_name}")
-        n = 4
-        width = int(1280 / n)
-        height = int(720 / n)
-        resized_image = my_img.resize((width, height))
-        global img  # otherwise it will not be displayed - Garbage Collection - https://stackoverflow.com/questions/16424091/why-does-tkinter-image-not-show-up-if-created-in-a-function
-        img = ImageTk.PhotoImage(resized_image)
-        Label(window, image=img, background=canvas_color).place(x=thumbnail_x, y=thumbnail_y)
-    except:
-        pass
+            video_title_field.delete('1.0', END)      
+            video_title_field.insert(END, "- - Sorry, something went wrong - -")
+            text_position(video_title_field)
 
-
-# DISPLAY INFO - TITLE - DURATION
-def display_info():
-    settings_data = settings.open_settings()
-
-    def text_position(field):
-        field.tag_configure("tag_name", justify='center')
-        field.tag_add("tag_name", "1.0", "end")
-
-    if settings_data['video_title'] != "":
-        title_length = len(settings_data['video_title'])
-        duration_length = len(settings_data['video_duration'])
-        # title_field_length = 51
-
-        if title_length + duration_length + 5 >= title_field_length:
-            insert = '.. - '
-            font_style_dependent_correction = -6
-            cut = title_field_length - duration_length - len(insert) - font_style_dependent_correction         
-            title = settings_data['video_title'][:cut] + insert + settings_data['video_duration']
+    def yt_dlp_path_valuation():
+        if settings_data['path_yt_dlp'] != "" and "mandatory" not in settings_data['path_yt_dlp']:
+            pass
         else:
-            title = settings_data['video_title'] + ' - ' + settings_data['video_duration']
-       
-        video_title_field.delete('1.0', END)       # once a button is clicked, removes the previous value
-        video_title_field.insert(END, title)       # adding the path and the name of the selected file
-        text_position(video_title_field)
-       
-    else:
-        video_title_field.delete('1.0', END)      
-        video_title_field.insert(END, "- - Sorry, is the video link correct? - -")
-        text_position(video_title_field)
+            messages.error_pop_up('Error','no_yt_dlp')
 
-def yt_dlp_path_valuation():
-    settings_data = settings.open_settings()
-    if settings_data['path_yt_dlp'] != "" and "mandatory" not in settings_data['path_yt_dlp']:
-        pass
-    else:
-        messages.error_pop_up('Error','no_yt_dlp')     
-
-
-
-button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [
     yt_dlp_path_valuation(),
     remove_pre_info(),
     get_url(),
@@ -208,9 +191,9 @@ button_get_url = Button(window, height=button_height, width=button_width, text =
     extract_info(),
     save_thumbnail(),
     display_thumbnail(),
-    display_info()
-    ],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
+    display_info()     
 
+button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [button_get_url_actions()],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
 
 
 ## SAVE AS - AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
@@ -261,7 +244,6 @@ def start():
         return
     
     
-
     ## SAVE DATA
     # DESTINATION
     if settings_data['path_target_location'] != destination_field.get("1.0", "end-1c"):
@@ -286,14 +268,13 @@ def start():
     if selected_resolution.isdecimal():                 # 360 - 2160
         parameter = f'-S "res:{selected_resolution}" --paths "{path}" -q --progress {add_path_ffmpeg}'      # Download the best video available with the largest resolution but no better than {selected_resolution},
     else:                                                                                           # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = f'-x --audio-format mp3 --paths "{path}" -q --progress {add_path_ffmpeg}'               # Audio Only
+        parameter = f'-x --audio-format mp3 --paths "{path}" -q --progress {add_path_ffmpeg}'               # Best - Audio Only - Convert to MP3
     
     executable =  f'{path_yt_dlp} {parameter} {link}'
 
     os.system(executable)
 
 button_start = Button(window, height=button_height, width=button_width, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
-
 
 
 ### DISPLAY WIDGETS
@@ -311,7 +292,6 @@ def display_widgets():
         location = y_button_base + 23 * gap
         return location
         
-
     # DESTINATION - FIELD + BROWSE BUTTON
     destination_field.place(x=x_field, y=y_field)
     destination_button.place(x=x_button, y=y_button(0)+2)
