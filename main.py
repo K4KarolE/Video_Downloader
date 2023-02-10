@@ -49,23 +49,33 @@ search_field_length = 40
 
 
 class Buttons:
-
     def __init__(self, text, command):
         self.text = text
         self.command = command
     
     def create(self):
-        return Button(window, height=button_height, width=button_width, text = self.text, command = self.command, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+        return Button(window,
+                      height=button_height,
+                      width=button_width, text = self.text, 
+                      command = self.command, 
+                      foreground=font_color, 
+                      background=background_color, 
+                      activeforeground=background_color, 
+                      activebackground=font_color)
 
 
-class Fields:
-    
+class Fields:  
     def __init__(self, width, background):
         self.width = width
         self.background = background
     
     def create(self):
-        return Text(window, height = 1, width = self.width, foreground=font_color, background=self.background, font=(font_style, font_size))
+        return Text(window, 
+                    height = 1, 
+                    width = self.width, 
+                    foreground=font_color, 
+                    background=self.background, 
+                    font=(font_style, font_size))
 
 
 
@@ -344,12 +354,3 @@ def display_widgets():
 display_widgets()
 
 window.mainloop()
-
-
-
-# SAVE AVAILABLE FORMATS
-# def available_formats(link):
-#     parameter = '-F'
-#     executable =  f'{path_yt_dlp} {parameter} {link} > formats.txt'     # writes the available formats into the txt file
-#     os.system(executable)
-#     print('\n')
