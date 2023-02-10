@@ -48,13 +48,36 @@ button_width = 10
 search_field_length = 40
 
 
+class Buttons:
+
+    def __init__(self, text, command):
+        self.text = text
+        self.command = command
+    
+    def create(self):
+        return Button(window, height=button_height, width=button_width, text = self.text, command = self.command, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+
+
+class Fields:
+    
+    def __init__(self, width, background):
+        self.width = width
+        self.background = background
+    
+    def create(self):
+        return Text(window, height = 1, width = self.width, foreground=font_color, background=self.background, font=(font_style, font_size))
+
+
+
 ## WIDGETS
 ## SETTINGS BUTTON - POP UP WINDOW
-settings_button = Button(window, height=button_height, width=button_width, text = "Settings", command = lambda: [pop_up_window.launch(window)], foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+settings_button_instance = Buttons('Settings', lambda: [pop_up_window.launch(window)])
+settings_button = settings_button_instance.create()
 
 
 ## DESTINATION - FIELD + BROWSE BUTTON
-destination_field = Text(window, height = 1, width = search_field_length, foreground=font_color, background="white", font=(font_style, font_size))
+destination_field_instance = Fields(search_field_length, "white")
+destination_field = destination_field_instance.create()
 destination_field.insert(END,settings_data['path_target_location'])     # loading the previously used destination folder
 
 def browse_destination():
@@ -62,13 +85,14 @@ def browse_destination():
     destination_field.delete('1.0', END)       # once a button is clicked, removes the previous value
     destination_field.insert(END,dir_name)     # adding the path and the name of the selected file
 
-destination_button = Button(window, height=button_height, width=button_width, text = "Destination", command = browse_destination, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+destination_button_instance = Buttons("Destination", lambda : [browse_destination()])
+destination_button = destination_button_instance.create()
 
 
 ## VIDEO TITLE AND DURATION - FIELD
 title_field_length = 51
-video_title_field = Text(window, height = 1, width = title_field_length, foreground=font_color, background=background_color, font=(font_style, font_size))
-
+video_title_field_instance = Fields(title_field_length,background_color)
+video_title_field = video_title_field_instance.create()
 
 ## GET URL - BUTTON
 # REMOVE PREVIOUS VALUES - THUMBNAIL
@@ -193,7 +217,8 @@ def button_get_url_actions():
     display_thumbnail(),
     display_info()     
 
-button_get_url = Button(window, height=button_height, width=button_width, text = "Get URL", command = lambda: [button_get_url_actions()],foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)        
+button_get_url_instance = Buttons("Get URL", lambda: [button_get_url_actions()])
+button_get_url = button_get_url_instance.create()
 
 
 ## SAVE AS - AUDIO / VIDEO OPTIONS + ROLL DOWN BUTTON
@@ -274,7 +299,8 @@ def start():
 
     os.system(executable)
 
-button_start = Button(window, height=button_height, width=button_width, text = "START", command = start, foreground=font_color, background=background_color, activeforeground=background_color, activebackground=font_color)
+button_start_instance = Buttons("START", lambda: [start()])
+button_start = button_start_instance.create()
 
 
 ### DISPLAY WIDGETS

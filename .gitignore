@@ -14,3 +14,5 @@ info*
 *.mp4
 
 virtual_env*
+
+main_*
