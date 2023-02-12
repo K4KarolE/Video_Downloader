@@ -135,7 +135,7 @@ def button_get_url_actions():
     def save_info():
         path_yt_dlp = settings_data['path_yt_dlp']
         link = settings_data['video_url']
-        info_path = './temp/info.txt'
+        info_path = './info/info.txt'
         parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
         executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
         os.system(executable)
@@ -143,7 +143,7 @@ def button_get_url_actions():
     # SAVE INFORMATION > SETTINGS DB
     def extract_info():
         try:
-            file = open('./temp/info.txt','r+')
+            file = open('./info/info.txt','r+')
             listFile = list(file)
             video_ID = listFile[0].strip('\n')
             video_title = listFile[1].strip('\n')      
