@@ -1,18 +1,9 @@
 test*
 
-formats*
-
 __pycache__
 
 thumbnail.png
 
-info*
 .gitignore
 
-*.webm
-*.mp3
-*.mp4
-
 virtual_env*
-
-main_*
