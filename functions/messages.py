@@ -1,7 +1,7 @@
 import tkinter.messagebox
 
 popup_message_dic = {
-    'no_yt_dlp': 'Please add the YT-DLP through the "Settings" button ',
+    'no_yt_dlp': 'Please add YT-DLP via the "Settings" button',
     'destination_folder':'Please add the destination folder with the "Destination" button',
     'no_URL':'Please add a video link with the "Get URL" button',
     'no_resolution':'Please select the target format with the "Save as" button',
