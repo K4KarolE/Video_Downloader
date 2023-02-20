@@ -5,11 +5,12 @@ from tkinter import filedialog
 
 import webbrowser
 import os
+from pathlib import Path
 
 from functions import messages
-
 from functions import settings
 settings_data = settings.open_settings()
+
 
 
 # SEARCH FIELD LENGTH
@@ -38,7 +39,9 @@ def launch(window):
     top_window.resizable(0,0)
     top_window.configure(background=settings_data['background_color'])
     # ICON
-    top_window.iconbitmap('./skin/icon_popup.ico')
+    working_directory = os.path.dirname(__file__).strip('functions')
+    path_icon_popup = Path(working_directory, "skin", "icon_popup.ico") 
+    top_window.iconbitmap(path_icon_popup)
     # RECTANGLES
     canvas_color = settings_data['background_color']
     canvas_frame_color = settings_data['canvas_frame_color']

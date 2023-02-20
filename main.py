@@ -6,7 +6,9 @@ from tkinter import *
 from tkinter import filedialog      # for browse window (adding path)
 
 from PIL import Image               # PILLOW import has to be after the tkinter impoert (Image.open will not work: 'Image has no attributesm open')
-from PIL import ImageTk  
+from PIL import ImageTk
+
+from pathlib import Path
 
 from functions import messages
 from functions import settings
@@ -34,7 +36,9 @@ window.geometry(f'{window_width}x{window_length}+%d+%d' % (screen_width/2-275, s
 window.resizable(0,0)   # locks the main window
 window.configure(background=settings_data['background_color'])
 # ICON
-window.iconbitmap('./skin/icon.ico')
+working_directory = os.path.dirname(__file__)
+path_icon = Path(working_directory, "skin", "icon.ico") 
+window.iconbitmap(path_icon)
 # RECTANGLE
 canvas_color = settings_data['background_color']
 canvas_frame_color = settings_data['canvas_frame_color']
@@ -107,7 +111,8 @@ video_title_field = video_title_field_instance.create()
 ## GET URL - BUTTON
 # REMOVE PREVIOUS VALUES - THUMBNAIL
 # DISPLAY THUMBNAIL
-my_img = Image.open(f"./thumbnail/thumbnail_default.png")
+path_thumbnail_default = Path(working_directory, "thumbnail", "thumbnail_default.png") 
+my_img = Image.open(path_thumbnail_default)
 img = ImageTk.PhotoImage(my_img)
 thumbnail = Label(window, image=img, background=canvas_color)
 thumbnail_x = settings_data['thumbnail_location_x']
@@ -123,7 +128,8 @@ def button_get_url_actions():
             settings_data['video_title'] = ""
             settings_data['video_duration'] = ""
             settings.save_settings(settings_data)
-            os.remove('./thumbnail/thumbnail.png')
+            path_thumbnail = Path(working_directory, "thumbnail", "thumbnail.png")
+            os.remove(path_thumbnail)
         except:
             pass
 
@@ -135,7 +141,7 @@ def button_get_url_actions():
     def save_info():
         path_yt_dlp = settings_data['path_yt_dlp']
         link = settings_data['video_url']
-        info_path = './info/info.txt'
+        info_path = Path(working_directory, "info", "info.txt") 
         parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
         executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
         os.system(executable)
@@ -143,7 +149,8 @@ def button_get_url_actions():
     # SAVE INFORMATION > SETTINGS DB
     def extract_info():
         try:
-            file = open('./info/info.txt','r+')
+            info_path = Path(working_directory, "info", "info.txt")
+            file = open(info_path,'r+')
             listFile = list(file)
             video_ID = listFile[0].strip('\n')
             video_title = listFile[1].strip('\n')      
@@ -162,7 +169,7 @@ def button_get_url_actions():
             # YT-DLP
             path_yt_dlp = settings_data['path_yt_dlp']
             link = settings_data['video_url']
-            path = 'thumbnail'
+            path = Path(working_directory, "thumbnail")
             parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths "{path}" --quiet' % {'NAME': "thumbnail"}
             executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
             os.system(executable)
@@ -173,7 +180,8 @@ def button_get_url_actions():
                 file_name = "thumbnail.png"
             else:
                 file_name = "thumbnail_error.png"
-            my_img = Image.open(f"./thumbnail/{file_name}")
+            my_img_path = Path(working_directory, "thumbnail", file_name) 
+            my_img = Image.open(my_img_path)
             n = 4
             width = int(1280 / n)
             height = int(720 / n)
