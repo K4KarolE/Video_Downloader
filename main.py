@@ -320,8 +320,8 @@ def start():
     # UPDATE THE FILE`S MODIFIED DATE ATTRIBUTE TO THE CURRENT DATE
     def change_modified_date():
         os.chdir(path)
-        video_title = settings_data['video_title']
-        update_date = f'copy /b "{video_title}"* +,,'
+        video_ID = settings_data['video_ID']
+        update_date = f'copy /b *"{video_ID}"* +,,'
         os.system(update_date)
     change_modified_date()
 
