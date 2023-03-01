@@ -317,6 +317,14 @@ def start():
 
     os.system(executable)
 
+    # UPDATE THE FILE`S MODIFIED DATE ATTRIBUTE TO THE CURRENT DATE
+    def change_modified_date():
+        os.chdir(path)
+        video_title = settings_data['video_title']
+        update_date = f'copy /b "{video_title}"* +,,'
+        os.system(update_date)
+    change_modified_date()
+
 button_start_instance = Buttons("START", lambda: [start()])
 button_start = button_start_instance.create()
 
