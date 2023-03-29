@@ -9,10 +9,8 @@ popup_message_dic = {
     }
 
 def error_pop_up(window_title, popup_message_dic_key):
-    tkinter.messagebox.showinfo( window_title, f"{popup_message_dic[popup_message_dic_key]}")     # tkinter.messagebox.showinfo ( window title, message )
+    tkinter.messagebox.showinfo( window_title, f"{popup_message_dic[popup_message_dic_key]}")     # tkinter.messagebox.showinfo ( popup window title, message )
 
-
-# error_pop_up('no_yt_dlp')
-# error_pop_up('destination_folder')
-# error_pop_up('no_URL')
-# error_pop_up('no_resolution')
+# EXAMPLE
+# error_pop_up('Error','destination_folder')
+# messages.error_pop_up('Error','destination_folder')
