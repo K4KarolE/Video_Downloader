@@ -132,7 +132,8 @@ def launch(window):
     ## UPDATE YT-DLP - BUTTON
     def update_yt_dlp():
         path_yt_dlp = settings_data['path_yt_dlp']
-        parameter = '-U'
+        # parameter = '-U' # standard build
+        parameter = '--update-to nightly'   # nightly build // https://github.com/yt-dlp/yt-dlp#update-channels
         executable =  f'{path_yt_dlp} {parameter}'
         os.system(executable)
 
