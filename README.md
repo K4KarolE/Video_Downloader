@@ -29,27 +29,33 @@
 ```
 pip install -r requirements.txt
 ```
-### Separately
-### Python 3 - used: 3.11
+
+### Python 3 - used: 3.12
 - https://www.python.org/
 
-### Pyperclip
-- https://pypi.org/project/pyperclip/
 
-### Pillow
-- https://pypi.org/project/Pillow/
-
-## Others
-### [YT-DLP](https://github.com/yt-dlp/yt-dlp#release-files)
+### YT-DLP [(link)](https://github.com/yt-dlp/yt-dlp#release-files)
+#### WINDOWS
 - You are able to add the path of the `YT-DLP.exe` in the `Settings` window
+#### LINUX
+- https://github.com/yt-dlp/yt-dlp/wiki/Installation
+- Linux Mint: `sudo apt install yt-dlp`
 
-### [FFmpeg](https://ffmpeg.org/)
+### FFmpeg [(link)](https://ffmpeg.org/)
+#### WINDOWS
 - If `FFmpeg` is not added to the system path:
     - You are able to add the path of the `ffmpeg.exe` in the `Settings` window
 - [Install FFmpeg on Windows 10/11](https://windowsloop.com/install-ffmpeg-windows-10/)
+#### LINUX
+- Linux Mint: via `Software Manager`
+### Tkinter (LINUX only)
+- `sudo apt install python3-tk`
+
+
+
 
 ### OS
-- `Windows` (tested on 10)
+- Tested on `Windows 11` and `Linux Mint 22`
 
 # Guide
 - `Save as` \ `MP3` - saves the best audio source and converts it to MP3
@@ -64,11 +70,5 @@ pip install -r requirements.txt
 - I used to have an imaginary friend, who heard from someone, that on this internet thing there are websites, where uncovered human body parts are displayed in motion. For real.
 Well, I cannot confirm personally, but I would say there is a chance the `Video Downloader` works just fine on these sites too.
 
-# Modules used, which are part of Python 3.11
-- json
-- os
-- pathlib
-- tkinter
-- webbrowser
 
-## Thank you all contributors of the listed `Python modules`, `YT-DLP` and `FFmpeg`!
+## Thank you all contributors of the `Python modules`, `YT-DLP` and `FFmpeg`!

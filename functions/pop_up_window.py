@@ -3,6 +3,7 @@
 from tkinter import *
 from tkinter import filedialog
 
+import sys
 import webbrowser
 import os
 from pathlib import Path
@@ -15,6 +16,15 @@ settings_data = settings.open_settings()
 
 # SEARCH FIELD LENGTH
 search_field_length = 40
+os_linux: bool = sys.platform == 'linux'
+
+def get_path_yt_dlp():
+    if os_linux:
+        path_yt_dlp = 'yt-dlp'
+    else:    
+        path_yt_dlp = settings_data['path_yt_dlp']
+    return path_yt_dlp
+
 
 def launch(window):
     settings_data = settings.open_settings()
@@ -27,7 +37,10 @@ def launch(window):
 
     # BUTTON SIZE
     button_height = 1
-    button_width = 10
+    if os_linux:
+        button_width = 7
+    else:
+        button_width = 10
     # WINDOW     
     top_window = Toplevel(window)
     top_window.title("Settings")
@@ -39,9 +52,10 @@ def launch(window):
     top_window.resizable(0,0)
     top_window.configure(background=settings_data['background_color'])
     # ICON
-    working_directory = os.path.dirname(__file__).strip('functions')
-    path_icon_popup = Path(working_directory, "skin", "icon_popup.ico") 
-    top_window.iconbitmap(path_icon_popup)
+    if not os_linux:
+        working_directory = os.path.dirname(__file__).strip('functions')
+        path_icon_popup = Path(working_directory, "skin", "icon_popup.ico") 
+        top_window.iconbitmap(path_icon_popup)
     # RECTANGLES
     canvas_color = settings_data['background_color']
     canvas_frame_color = settings_data['canvas_frame_color']
@@ -85,7 +99,9 @@ def launch(window):
     yt_dlp_location_field_instance = Fields(search_field_length, "white")
     yt_dlp_location_field = yt_dlp_location_field_instance.create()
 
-    if settings_data['path_yt_dlp'] == "":
+    if os_linux:
+        yt_dlp_location_field.insert(END,"YT-DLP path is not mandatory via this field")
+    elif not os_linux and settings_data['path_yt_dlp'] == "":
         yt_dlp_location_field.insert(END,"mandatory")
     else:
         yt_dlp_location_field.insert(END, settings_data['path_yt_dlp'])
@@ -100,13 +116,17 @@ def launch(window):
 
     yt_dlp_location_button_instance = Buttons("YT-DLP", lambda:[browse_location_yt_dlp()])
     yt_dlp_location_button = yt_dlp_location_button_instance.create()
+    if os_linux:
+        yt_dlp_location_button.configure(state=DISABLED)
 
 
     ## FFMPEG LOCATION - FIELD + BROWSE BUTTON
     ffmpeg_location_field_instance = Fields(search_field_length,"white")
     ffmpeg_location_field = ffmpeg_location_field_instance.create()
     
-    if settings_data['path_ffmpeg'] == "":
+    if os_linux:
+        ffmpeg_location_field.insert(END,"FFMPEG path is not mandatory via this field")
+    elif not os_linux and settings_data['path_ffmpeg'] == "":
         ffmpeg_location_field.insert(END,"non-mandatory, if already added to system path")
     else:
         ffmpeg_location_field.insert(END, settings_data['path_ffmpeg'])
@@ -121,6 +141,8 @@ def launch(window):
 
     ffmpeg_location_button_instance = Buttons("FFmpeg", lambda: [browse_location_ffmpeg()])
     ffmpeg_location_button = ffmpeg_location_button_instance.create()
+    if os_linux:
+        ffmpeg_location_button.configure(state=DISABLED)
 
     ## HELP BUTTON
     def help():
@@ -131,11 +153,14 @@ def launch(window):
 
     ## UPDATE YT-DLP - BUTTON
     def update_yt_dlp():
-        path_yt_dlp = settings_data['path_yt_dlp']
-        # parameter = '-U' # standard build
-        parameter = '--update-to nightly'   # nightly build // https://github.com/yt-dlp/yt-dlp#update-channels
-        executable =  f'{path_yt_dlp} {parameter}'
-        os.system(executable)
+        if os_linux:
+            messages.error_pop_up('Information','update_yt_dlp_linux')
+        else:
+            path_yt_dlp = get_path_yt_dlp()
+            # parameter = '-U' # standard build
+            parameter = '--update-to nightly'   # nightly build // https://github.com/yt-dlp/yt-dlp#update-channels
+            executable =  f'{path_yt_dlp} {parameter}'
+            os.system(executable)
 
     update_yt_dlp_button_instance = Buttons("Update YT-DLP", lambda:[update_yt_dlp()])
     update_yt_dlp_button = update_yt_dlp_button_instance.create()
@@ -157,6 +182,8 @@ def launch(window):
              
     save_button_instance = Buttons("Save", lambda: [save()])
     save_button = save_button_instance.create()
+    if os_linux:
+        save_button.configure(state=DISABLED)
 
     ## DISPLAY WIDGETS
     # FIELD
