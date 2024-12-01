@@ -24,7 +24,6 @@
 </div>
 
 # Requirements
-## Python and Modules
 ### Install packages\dependencies
 ```
 pip install -r requirements.txt
@@ -35,24 +34,22 @@ pip install -r requirements.txt
 
 
 ### YT-DLP [(link)](https://github.com/yt-dlp/yt-dlp#release-files)
-#### WINDOWS
-- You are able to add the path of the `YT-DLP.exe` in the `Settings` window
-#### LINUX
-- https://github.com/yt-dlp/yt-dlp/wiki/Installation
-- Linux Mint: `sudo apt install yt-dlp`
+- WINDOWS
+    - You are able to add the path of the `YT-DLP.exe` in the `Settings` window
+- LINUX
+    - https://github.com/yt-dlp/yt-dlp/wiki/Installation
+    - `sudo apt install yt-dlp` / `pip install yt-dlp`
 
 ### FFmpeg [(link)](https://ffmpeg.org/)
-#### WINDOWS
-- If `FFmpeg` is not added to the system path:
-    - You are able to add the path of the `ffmpeg.exe` in the `Settings` window
-- [Install FFmpeg on Windows 10/11](https://windowsloop.com/install-ffmpeg-windows-10/)
-#### LINUX
-- Linux Mint: via `Software Manager`
+- WINDOWS
+    - If `FFmpeg` is not added to the system path:
+        - You are able to add the path of the `ffmpeg.exe` in the `Settings` window
+    - [Install FFmpeg on Windows 10/11](https://windowsloop.com/install-ffmpeg-windows-10/)
+- LINUX
+    - Via `Software Manager`
+
 ### Tkinter (LINUX only)
 - `sudo apt install python3-tk`
-
-
-
 
 ### OS
 - Tested on `Windows 11` and `Linux Mint 22`
