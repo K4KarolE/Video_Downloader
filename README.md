@@ -49,7 +49,13 @@ pip install -r requirements.txt
     - Via `Software Manager`
 
 ### Tkinter (LINUX only)
-- `sudo apt install python3-tk`
+- Ubuntu/Mint: `sudo apt install python3-tk`
+
+### Pyperclip (LINUX only)
+- [https://pypi.org/project/pyperclip/](https://pypi.org/project/pyperclip/)
+- " On Linux, this module makes use of the xclip or xsel commands,
+which should come with the os. Otherwise run “sudo apt-get install xclip”
+or “sudo apt-get install xsel” (Note: xsel does not always seem to work.) "
 
 ### OS
 - Tested on `Windows 11` and `Linux Mint 22`
