@@ -28,7 +28,7 @@ font_size = settings_data['font_size']
 font_color = settings_data['font_color']
 working_directory = os.path.dirname(__file__)
 os_linux: bool = sys.platform == 'linux'
-
+valid_url: bool = False
 
 
 # WINDOW
@@ -92,11 +92,8 @@ class Fields:
 
 
 def get_path_yt_dlp():
-    if os_linux:
-        path_yt_dlp = 'yt-dlp'
-    else:    
-        settings_data = settings.open_settings()
-        path_yt_dlp = settings_data['path_yt_dlp']
+    settings_data = settings.open_settings()
+    path_yt_dlp = settings_data['path_yt_dlp']
     return path_yt_dlp
 
 
@@ -136,6 +133,7 @@ thumbnail = Label(window, image=img, background=canvas_color)
 thumbnail_x = settings_data['thumbnail_location_x']
 thumbnail_y = settings_data['thumbnail_location_y']
 
+
 def button_get_url_actions():
 
     settings_data = settings.open_settings()
@@ -150,20 +148,31 @@ def button_get_url_actions():
             if path_thumbnail.is_file():
                 os.remove(path_thumbnail)
         except:
-            print('Remove previous information failed')
+            print('Removing previous information failed')
 
     def get_url():
-        settings_data['video_url'] = pyperclip.paste()
-        settings.save_settings(settings_data)
+        clipboard_content = pyperclip.paste()
+        if 'http' in clipboard_content:
+            valid_url = True
+            settings_data['video_url'] = clipboard_content
+            settings.save_settings(settings_data)
+        else:
+            messages.error_pop_up('Warning', 'invalid_url_in_clipboard')
+            valid_url = False
+        return valid_url
 
     # GET INFORMATION > INFO.TXT
     def save_info():
+        text_frame = "-"*20
+        print(f'\n {text_frame} NEW VIDEO {text_frame}')
+        print('-- Extracting information(id, title, duration) --')
         path_yt_dlp = get_path_yt_dlp()
         link = settings_data['video_url']
         info_path = Path(working_directory, "info", "info.txt") 
-        parameter = f'--print id --get-title --get-duration --restrict-filenames --quiet'
+        parameter = "--print id --get-title --get-duration --restrict-filenames"
         executable =  f'{path_yt_dlp} {parameter} {link} > {info_path}'     # writes the available formats into the txt file
         os.system(executable)
+        print("-- Extraction completed --")
     
     # SAVE INFORMATION > SETTINGS DB
     def extract_info():
@@ -185,16 +194,18 @@ def button_get_url_actions():
 
     def save_thumbnail():
         if settings_data['video_title'] != "":
-            # YT-DLP
+            print("-- Saving thumbnail --")
             path_yt_dlp = get_path_yt_dlp()
             link = settings_data['video_url']
             path = Path(working_directory, "thumbnail")
             parameter = f'--skip-download -o %(NAME)s --write-thumbnail --convert-thumbnails png --paths "{path}" --quiet' % {'NAME': "thumbnail"}
             executable =  f'{path_yt_dlp} {parameter} {link}'     # writes the available formats into the txt file
             os.system(executable)
+            print("-- Thumbnail saved --")
         
     def display_thumbnail():
         try:
+            print("-- Displaying thumbnail --")
             if settings_data['video_title'] != "":
                 file_name = "thumbnail.png"
             else:
@@ -213,7 +224,7 @@ def button_get_url_actions():
 
     # DISPLAY INFO - TITLE - DURATION
     def display_info():
-
+        print("-- Displaying information --")
         def text_position(field):
             field.tag_configure("tag_name", justify='center')
             field.tag_add("tag_name", "1.0", "end")
@@ -240,23 +251,20 @@ def button_get_url_actions():
             text_position(video_title_field)
 
     def yt_dlp_path_valuation():
-        if os_linux:
+        if os.path.isfile(settings_data['path_yt_dlp']):
             return True
         else:
-            if os.path.isfile(settings_data['path_yt_dlp']):
-                return True
-            else:
-                messages.error_pop_up('Error','no_yt_dlp')
-                return False
+            messages.error_pop_up('Error','no_yt_dlp')
+            return False
 
     if yt_dlp_path_valuation():
-        remove_pre_info(),
-        get_url(),
-        save_info(),
-        extract_info(),
-        save_thumbnail(),
-        display_thumbnail(),
-        display_info()     
+        if get_url():
+            remove_pre_info(),
+            save_info(),
+            extract_info(),
+            save_thumbnail(),
+            display_thumbnail(),
+            display_info()
 
 button_get_url_instance = Buttons("Get URL", lambda: [button_get_url_actions()])
 button_get_url = button_get_url_instance.create()
@@ -313,10 +321,11 @@ def start():
     
     # YT-DLP    - already checked with the "Get URL", why checking here too: unique scenario, YT-DLP added, rest of the req.es added(destination, URL) and YT-DLP removed before click START
     settings_data = settings.open_settings()    # otherwise it will use the value pulled from DB at the start of the program
-    if not os_linux and settings_data['path_yt_dlp'] == "":
+
+    if not os.path.isfile(settings_data['path_yt_dlp']):
         messages.error_pop_up('Error', 'no_yt_dlp')
         return
-    
+
     
     ## SAVE DATA
     # DESTINATION
@@ -332,7 +341,7 @@ def start():
     path_yt_dlp = get_path_yt_dlp()
     
     # FFMPEG PATH 
-    if settings_data['path_ffmpeg'] != "":          # if ffmpeg not added to the windows path - ffmpeg path browse field is used
+    if os.path.isfile(settings_data['path_ffmpeg']):          # if ffmpeg not added to the windows path - ffmpeg path browse field is used
         path_ffmpeg = settings_data['path_ffmpeg']
         add_path_ffmpeg = f'--ffmpeg-location "{path_ffmpeg}"'
     else:

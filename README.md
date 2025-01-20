@@ -34,11 +34,10 @@ pip install -r requirements.txt
 
 
 ### YT-DLP [(link)](https://github.com/yt-dlp/yt-dlp#release-files)
-- WINDOWS
-    - You are able to add the path of the `YT-DLP.exe` in the `Settings` window
-- LINUX
-    - https://github.com/yt-dlp/yt-dlp/wiki/Installation
-    - `sudo apt install yt-dlp` / `pip install yt-dlp`
+- WINDOWS / LINUX
+    - You are able to add the path of the `YT-DLP.exe / yt-dlp_linux` in the `Settings` window
+    - Download the binary file: https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#installation
+    - Updates to the latest `nightly` version by default (functions / pop_up_window / update_yt_dlp())
 
 ### FFmpeg [(link)](https://ffmpeg.org/)
 - WINDOWS
