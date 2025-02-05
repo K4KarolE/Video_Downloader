@@ -348,10 +348,23 @@ def start():
         add_path_ffmpeg = ""
     
     # PARAMETER COMPILING
-    if selected_resolution.isdecimal():                 # 360 - 2160
-        parameter = f'-S "res:{selected_resolution}" --paths "{path}" --progress {add_path_ffmpeg}'      # Download the best video available with the largest resolution but no better than {selected_resolution},
-    else:                                                                                                   # or the best video with the smallest resolution if there is no video under {selected_resolution}
-        parameter = f'-x --audio-format mp3 --paths "{path}" --progress {add_path_ffmpeg}'               # Best - Audio Only - Convert to MP3
+    # https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#format-selection-examples
+    """
+        Download the best video available with the largest resolution but no better than 480p,
+        or the best video with the smallest resolution if there is no video under 480p
+        Resolution is determined by using the smallest dimension.
+        So this works correctly for vertical videos as well
+        yt-dlp -S "res:480"
+    """
+    """
+        Download the best video with the best extension
+        (For video, mp4 > mov > webm > flv. For audio, m4a > aac > mp3 ...)
+        yt-dlp -S "ext"
+    """
+    if selected_resolution.isdecimal(): # 360-2160
+        parameter = f'-S "ext,res:{selected_resolution}" --paths "{path}" --progress {add_path_ffmpeg}'
+    else:
+        parameter = f'-x --audio-format mp3 --paths "{path}" --progress {add_path_ffmpeg}'  # Best-Audio Only-Convert to MP3
     
     executable =  f'{path_yt_dlp} {parameter} {link}'
 
